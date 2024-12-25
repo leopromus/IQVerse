@@ -1,0 +1,6 @@
+pip~=23.2.1
+cryptography~=44.0.0
+Django~=4.2.5
+asgiref~=3.8.1
+sqlparse~=0.5.3
+requests~=2.32.3
