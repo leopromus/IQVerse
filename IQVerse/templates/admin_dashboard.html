@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.5/font/bootstrap-icons.min.css" rel="stylesheet">
+    <style>
+        .card-custom {
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+
+        .card-custom:hover {
+            transform: translateY(-5px);
+        }
+
+        .btn-custom {
+            background-color: #0d6efd;
+            color: white;
+        }
+
+        .btn-custom:hover {
+            background-color: #0b5ed7;
+        }
+
+        .content-header {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .admin-welcome {
+            font-weight: bold;
+            color: #0d6efd;
+        }
+
+        .action-section h5 {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+        <a class="navbar-brand" href="{% url 'admin_dashboard' %}">
+            <i class="bi bi-person-gear"></i> Admin Dashboard
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link active" href="{% url 'admin_dashboard' %}"><i class="bi bi-house-door"></i> Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'profile' %}"><i class="bi bi-person"></i> Profile</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'logout' %}"><i class="bi bi-box-arrow-right"></i> Logout</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Header Section -->
+<div class="container mt-5">
+    <div class="content-header">
+        <h2>Admin Dashboard</h2>
+        <p>Welcome, <span class="admin-welcome">{{ user.username }}!</span></p>
+    </div>
+
+    <!-- Statistics Cards with Dynamic Data -->
+    <div class="row text-center">
+        <div class="col-md-3 mb-4">
+            <div class="card card-custom p-4 bg-primary text-white">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-person-fill fs-3 me-3"></i>
+                    <div>
+                        <h5>Total Students</h5>
+                        <p class="fs-4">{{ total_students }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="card card-custom p-4 bg-success text-white">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-person-lines-fill fs-3 me-3"></i>
+                    <div>
+                        <h5>Total Teachers</h5>
+                        <p class="fs-4">{{ total_teachers }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="card card-custom p-4 bg-warning text-dark">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-book-fill fs-3 me-3"></i>
+                    <div>
+                        <h5>Total Courses</h5>
+                        <p class="fs-4">{{ total_courses }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="card card-custom p-4 bg-danger text-white">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-question-circle-fill fs-3 me-3"></i>
+                    <div>
+                        <h5>Total Questions</h5>
+                        <p class="fs-4">{{ total_questions }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Management Actions -->
+    <div class="action-section mt-5">
+        <h4>Management Actions</h4>
+
+        <!-- Teacher Management -->
+        <h5 class="mt-4">🔹 Teacher Management</h5>
+        <div class="d-flex gap-3 flex-wrap">
+
+        {% if teacher.id %}
+    <a href="{% url 'approve_teacher' teacher_id=teacher.id %}" class="btn btn-success">Approve Teacher</a>
+{% else %}
+    <span class="text-danger">Teacher ID missing</span>
+{% endif %}
+
+
+           {% if teacher.id %}
+    <a href="{% url 'manage_teacher' teacher_id=teacher.id %}" class="btn btn-primary">Manage Teacher</a>
+{% else %}
+    <span class="text-danger">Invalid Teacher ID</span>
+{% endif %}
+
+            <a href="{% if teacher.id %}{% url 'delete_teacher' teacher_id=teacher.id %}{% else %}#{% endif %}" class="btn btn-outline-danger">
+                <i class="bi bi-trash"></i> Delete Teacher
+            </a>
+        </div>
+
+        <!-- Student Management -->
+        <h5 class="mt-4">🔹 Student Management</h5>
+        <div class="d-flex gap-3 flex-wrap">
+            <a href="{% if student.id %}{% url 'update_student' student_id=student.id %}{% else %}#{% endif %}" class="btn btn-custom">
+                <i class="bi bi-pencil-square"></i> Update Student
+            </a>
+            <a href="{% if student.id %}{% url 'delete_student' student_id=student.id %}{% else %}#{% endif %}" class="btn btn-outline-danger">
+                <i class="bi bi-trash"></i> Delete Student
+            </a>
+            <h2>{% if student %}Marks for {{ student.user.username }}{% else %}All Student Marks{% endif %}</h2>
+
+{% if marks %}
+    <ul>
+        {% for mark in marks %}
+            <li>
+                {{ mark.student.user.username }} - {{ mark.course }}: {{ mark.score }} ({{ mark.date_taken }})
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p class="text-warning">No marks available.</p>
+{% endif %}
+
+            <form method="GET" action="{% url 'admin_view_marks' %}">
+    <select name="student_id">
+        {% for student in students %}
+            <option value="{{ student.id }}">{{ student.user.username }}</option>
+        {% endfor %}
+    </select>
+    <button type="submit">View Marks</button>
+</form>
+
+        </div>
+
+        <!-- Course Management -->
+        <h5 class="mt-4">🔹 Course Management</h5>
+        <div class="d-flex gap-3 flex-wrap">
+            <a href="{% url 'add_course' %}" class="btn btn-custom"><i class="bi bi-journal-plus"></i> Add Course</a>
+            <a href="{% url 'view_courses' %}" class="btn btn-outline-secondary"><i class="bi bi-eye"></i> View Course</a>
+
+            {% for course in courses %}
+        <a href="{% url 'delete_course' id=course.id %}" class="btn btn-outline-danger"><i class="bi bi-trash"></i> Delete Course</a>
+    {% endfor %}
+        </div>
+
+        <!-- Question Management -->
+        <h5 class="mt-4">🔹 Question Management</h5>
+        <div class="d-flex gap-3 flex-wrap">
+            <a href="{% url 'add_question' %}" class="btn btn-custom"><i class="bi bi-plus-circle"></i> Add Question</a>
+            <a href="{% url 'view_questions' %}" class="btn btn-outline-secondary"><i class="bi bi-eye"></i> View Question</a>
+        <!-- Delete Question (assuming `question.id` is available in context) -->
+    {% for question in questions %}
+        <a href="{% url 'delete_question' id=question.id %}" class="btn btn-outline-danger">
+            <i class="bi bi-trash"></i> Delete Question: {{ question.question_text }}
+        </a>
+    {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<footer class="bg-dark text-white text-center py-3 mt-5">
+    <p>&copy; 2024 Admin Dashboard. All Rights Reserved.</p>
+</footer>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
