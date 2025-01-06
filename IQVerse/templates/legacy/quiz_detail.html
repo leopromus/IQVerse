@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="container mt-5">
+        <h2 class="display-4 mb-4">{{ quiz.title }}</h2>
+        <p class="lead mb-4">{{ quiz.description }}</p>
+
+        <!-- Timer for quiz (optional) -->
+        <div class="alert alert-info">
+            Time Limit: {{ quiz.time_limit }} minutes
+        </div>
+
+        <form action="{% url 'start_quiz_attempt' quiz.id %}" method="POST">
+            {% csrf_token %}
+            <div class="questions-container">
+                {% for question in quiz.questions.all %}
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ question.text }}</h5>
+                            <p class="card-text">Points: {{ question.points }}</p>
+                            
+                            {% for choice in question.choices.all %}
+                                <div class="form-check">
+                                    <input type="radio" name="question_{{ question.id }}" value="{{ choice.id }}" id="choice_{{ choice.id }}" class="form-check-input" required>
+                                    <label class="form-check-label" for="choice_{{ choice.id }}">
+                                        {{ choice.text }}
+                                    </label>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <button type="submit" class="btn btn-primary">Submit Quiz</button>
+        </form>
+    </div>
+{% endblock %}
