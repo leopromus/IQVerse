@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     'quiz',
     'rest_framework',
     'drf_yasg',
+    "crispy_forms",
+    "crispy_bootstrap5",
 ]
 
 MIDDLEWARE = [
@@ -57,7 +59,7 @@ ROOT_URLCONF = 'IQVerse.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -69,6 +71,10 @@ TEMPLATES = [
         },
     },
 ]
+
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+
+CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 WSGI_APPLICATION = 'IQVerse.wsgi.application'
 
@@ -103,6 +109,19 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
+# settings.py
+
+LOGIN_REDIRECT_URL = '/quiz/'
+LOGIN_URL = '/login/'
+
+
+# Session Expiry Settings
+# Default session expiry for authenticated users
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # Keep the session alive after browser closes if 'Remember Me' is checked
+SESSION_COOKIE_AGE = 1209600  # 2 weeks in seconds (if Remember Me is enabled)
+
+
+
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
@@ -119,6 +138,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = 'static/'
+
+STATICFILES_DIRS = [BASE_DIR / 'static']
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
