@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage User Attempts</title>
+</head>
+<body>
+    <h1>User Quiz Attempts</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>User</th>
+                <th>Quiz</th>
+                <th>Score</th>
+                <th>Completed</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for attempt in attempts %}
+                <tr>
+                    <td>{{ attempt.user.username }}</td>
+                    <td>{{ attempt.quiz.title }}</td>
+                    <td>{{ attempt.score }}</td>
+                    <td>{{ attempt.completed }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{% url 'admin_panel' %}">Back to Admin Panel</a>
+</body>
+</html>
