@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="container text-center mt-5">
+    <h2 class="display-4">Welcome to IQVerse</h2>
+    <p class="lead">Take quizzes, track your scores, and improve your knowledge in various subjects!</p>
+    <a href="#" class="btn btn-primary btn-lg">Start Quiz</a>
+
+    <h3 class="mt-5">Featured Quizzes</h3>
+    <div class="row">
+        {% for quiz in quizzes %}
+        <div class="col-md-4">
+            <div class="card">
+                <img src="{{ quiz.image_url }}" class="card-img-top" alt="Quiz Image">
+                <div class="card-body">
+                    <h5 class="card-title">{{ quiz.title }}</h5>
+                    <p class="card-text">{{ quiz.description }}</p>
+                    <a href="{% url 'quiz_detail' quiz.id %}" class="btn btn-primary">Start Quiz</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+  </div>
+{% endblock %}

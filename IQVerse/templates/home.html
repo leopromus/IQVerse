@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - Welcome to the Platform{% endblock %}
+
+{% block content %}
+    <!-- Hero Section -->
+    <div class="container-fluid py-5 bg-primary-custom text-white text-center">
+        <h1 class="display-4 mb-4">Welcome to the Education Platform</h1>
+        <p class="lead mb-4">A platform where teachers, students, and administrators can interact and grow together.</p>
+
+        <div class="d-flex justify-content-center gap-3">
+            <a href="{% url 'signup' %}" class="btn btn-light btn-lg">Sign Up</a>
+            <a href="{% url 'login' %}" class="btn btn-outline-light btn-lg">Login</a>
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <div class="container my-5">
+        <div class="row text-center">
+            <div class="col-md-4">
+                <h4><i class="bi bi-mortarboard"></i> For Teachers</h4>
+                <p>Manage courses, approve students, and track progress.</p>
+            </div>
+            <div class="col-md-4">
+                <h4><i class="bi bi-person"></i> For Students</h4>
+                <p>Enroll in courses, track progress, and interact with teachers.</p>
+            </div>
+            <div class="col-md-4">
+                <h4><i class="bi bi-gear"></i> For Admin</h4>
+                <p>Manage teachers, students, and courses with ease.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Call to Action Section -->
+    <div class="text-center py-5 bg-light">
+        <h2 class="mb-3">Join us today and be part of the educational revolution!</h2>
+        <a href="{% url 'signup' %}" class="btn btn-primary btn-lg">Get Started</a>
+    </div>
+
+    <!-- Logout Section (if the user is logged in) -->
+    {% if user.is_authenticated %}
+        <div class="text-center mt-4">
+            <h4>Welcome, {{ user.username }}!</h4>
+            <a href="{% url 'logout' %}" class="btn btn-danger">Logout</a>
+        </div>
+    {% endif %}
+{% endblock %}
