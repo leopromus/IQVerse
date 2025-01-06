@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+  <h1 class="mb-4">Available Quizzes</h1>
+  <p>Select a quiz from the list below to start:</p>
+  
+  <div class="list-group">
+    {% for quiz in quizzes %}
+      <a href="{% url 'quiz_detail' quiz.id %}" class="list-group-item list-group-item-action">
+        <h5 class="mb-1">{{ quiz.title }}</h5>
+        <p class="mb-1">{{ quiz.description }}</p>
+      </a>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
