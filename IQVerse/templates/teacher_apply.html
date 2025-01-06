@@ -1,0 +1,32 @@
+<!-- teacher_apply.html -->
+<h2>Teacher Application Form</h2>
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+
+    <div class="mb-3">
+        <label>{{ form.full_name.label }}</label>
+        {{ form.full_name }}
+        {{ form.full_name.errors }}
+    </div>
+
+    <div class="mb-3">
+        <label>{{ form.email.label }}</label>
+        {{ form.email }}
+        {{ form.email.errors }}
+    </div>
+
+    <div class="mb-3">
+        <label>{{ form.resume.label }}</label>
+        {{ form.resume }}
+        {{ form.resume.errors }}
+    </div>
+
+    <div class="mb-3">
+        <label>{{ form.cover_letter.label }}</label>
+        {{ form.cover_letter }}
+        {{ form.cover_letter.errors }}
+    </div>
+
+    <button type="submit" class="btn btn-primary">Submit Application</button>
+</form>
