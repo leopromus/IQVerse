@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="container">
+        <h2>Approve Teacher Application</h2>
+        <p>Do you want to approve the teacher application for: <strong>{{ teacher.user.username }}</strong>?</p>
+
+        <form method="POST">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-success">Approve</button>
+            <a href="{% url 'admin:index' %}" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+{% endblock %}
