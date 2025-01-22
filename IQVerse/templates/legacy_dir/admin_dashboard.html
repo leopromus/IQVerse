@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Basic Layout */
+        body {
+            display: flex;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background: #2c3e50;
+            color: #ecf0f1;
+            min-height: 100vh;
+            padding-top: 20px;
+        }
+
+        .sidebar h3 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .sidebar ul li {
+            margin: 15px 0;
+        }
+
+        .sidebar ul li a {
+            color: #ecf0f1;
+            text-decoration: none;
+            padding: 10px 20px;
+            display: block;
+        }
+
+        .sidebar ul li a:hover {
+            background: #34495e;
+            border-left: 4px solid #1abc9c;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            background: #f4f6f9;
+        }
+
+        .dashboard-stats {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-box {
+            background: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            flex: 1;
+        }
+
+        .stat-box h4 {
+            margin: 10px 0;
+        }
+
+        .stat-box p {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .content-section {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h3><i class="fas fa-home"></i> Admin Dashboard</h3>
+        <ul>
+            {% if user.has_perm 'quiz.manage_teacher' %}
+                <li><a href="{% url 'admin_manage_teachers' %}"><i class="fas fa-chalkboard-teacher"></i> Manage Teachers</a></li>
+            {% endif %}
+            {% if user.has_perm 'quiz.manage_students' %}
+                <li><a href="{% url 'admin_manage_students' %}"><i class="fas fa-user-graduate"></i> Manage Students</a></li>
+            {% endif %}
+            {% if user.has_perm 'quiz.view_marks' %}
+                <li><a href="{% url 'admin_view_marks' %}"><i class="fas fa-clipboard-list"></i> View Marks</a></li>
+            {% endif %}
+            {% if user.has_perm 'quiz.manage_courses' %}
+                <li><a href="{% url 'admin_manage_courses' %}"><i class="fas fa-book"></i> Manage Courses</a></li>
+            {% endif %}
+            {% if user.has_perm 'quiz.manage_questions' %}
+                <li><a href="{% url 'admin_manage_questions' %}"><i class="fas fa-question-circle"></i> Manage Questions</a></li>
+            {% endif %}
+            <li><a href="{% url 'admin_logout' %}"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <h2>Welcome, Admin!</h2>
+
+        <!-- Dashboard Stats -->
+        <div class="dashboard-stats">
+            <div class="stat-box">
+                <h4>Total Students</h4>
+                <p>{{ total_students }}</p>
+            </div>
+            <div class="stat-box">
+                <h4>Total Teachers</h4>
+                <p>{{ total_teachers }}</p>
+            </div>
+            <div class="stat-box">
+                <h4>Total Courses</h4>
+                <p>{{ total_courses }}</p>
+            </div>
+            <div class="stat-box">
+                <h4>Total Questions</h4>
+                <p>{{ total_questions }}</p>
+            </div>
+        </div>
+
+        <!-- Quick Overview Section -->
+        <div class="content-section">
+            <h3>Quick Actions</h3>
+            <ul>
+                {% if user.has_perm 'quiz.add_teacher' %}
+                    <li><a href="{% url 'admin_add_teacher' %}">Add New Teacher</a></li>
+                {% endif %}
+                {% if user.has_perm 'quiz.add_student' %}
+                    <li><a href="{% url 'admin_add_student' %}">Add New Student</a></li>
+                {% endif %}
+                {% if user.has_perm 'quiz.add_course' %}
+                    <li><a href="{% url 'admin_add_course' %}">Add New Course</a></li>
+                {% endif %}
+                {% if user.has_perm 'quiz.add_question' %}
+                    <li><a href="{% url 'admin_add_question' %}">Add New Question</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+
+</body>
+</html>
