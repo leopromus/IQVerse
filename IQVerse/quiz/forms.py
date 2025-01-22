@@ -1,194 +1,177 @@
+from .models import User, TeacherApplication, Question, Course, Student, Settings, Teacher, Quiz
+from django.contrib.auth.forms import AuthenticationForm
 from django import forms
+from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
-from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
-from .models import Teacher, Student, TeacherApplication, Course, Question
+
+from django.forms.widgets import HiddenInput
+# forms.py
+from django import forms
+from .models import StudentExam
+from django.contrib.auth import get_user_model
 
 
-# Login Form
-class LoginForm(AuthenticationForm):
-    username = forms.CharField(max_length=254, widget=forms.TextInput(attrs={'autofocus': True}))
-    password = forms.CharField(widget=forms.PasswordInput(attrs={'autocomplete': 'current-password'}))
+
+class UserForm(forms.ModelForm):
+    # Adding two password fields for confirmation
+    password1 = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'Password'}))
+    password2 = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'Confirm Password'}))
+
+    # Custom validator to ensure passwords match
+    def clean_password2(self):
+        password1 = self.cleaned_data.get("password1")
+        password2 = self.cleaned_data.get("password2")
+
+        if password1 != password2:
+            raise ValidationError("Passwords do not match.")
+        return password2
+
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'role', 'password1', 'password2']
+
+    # Add role choices manually if you have specific roles (you can modify this based on your project)
+    ROLE_CHOICES = [
+        ('admin', 'Admin'),
+        ('teacher', 'Teacher'),
+        ('student', 'Student'),
+    ]
+
+    role = forms.ChoiceField(choices=ROLE_CHOICES, required=True)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            field.widget.attrs.update({'class': 'form-control'})
+            # Adding placeholders for other fields
+            if field_name == 'username':
+                field.widget.attrs.update({'placeholder': 'Enter your username'})
+            elif field_name == 'email':
+                field.widget.attrs.update({'placeholder': 'Enter your email'})
+            elif field_name == 'role':
+                field.widget.attrs.update({'placeholder': 'Select your role'})
+
+class CustomAuthenticationForm(AuthenticationForm):
+    username = forms.CharField(
+        label='Username',
+        max_length=150,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Username'}),
+    )
+    password = forms.CharField(
+        label='Password',
+        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Enter Password'}),
+    )
 
     class Meta:
         model = AuthenticationForm
         fields = ['username', 'password']
 
 
-# Teacher Signup Form
-class TeacherSignupForm(UserCreationForm):
-    username = forms.CharField(max_length=150, required=True)
-    first_name = forms.CharField(max_length=30, required=False)
-    last_name = forms.CharField(max_length=30, required=False)
-    email = forms.EmailField(required=True)
-    subject = forms.CharField(max_length=100, required=True)
-
-    class Meta:
-        model = User
-        fields = ['username', 'first_name', 'last_name', 'email', 'password1', 'password2']
-
-    def save(self, commit=True):
-        user = super().save(commit=False)
-        if commit:
-            user.save()
-        teacher = Teacher.objects.create(user=user, subject=self.cleaned_data['subject'])
-        return teacher
-
-
-# Student Signup Form
-class StudentSignupForm(UserCreationForm):
-    username = forms.CharField(max_length=150, required=True)
-    first_name = forms.CharField(max_length=30, required=False)
-    last_name = forms.CharField(max_length=30, required=False)
-    email = forms.EmailField(required=True)
-    grade = forms.CharField(max_length=20, required=True)
-
-    class Meta:
-        model = User
-        fields = ['username', 'first_name', 'last_name', 'email', 'password1', 'password2']
-
-    def save(self, commit=True):
-        user = super().save(commit=False)
-        if commit:
-            user.save()
-        student = Student.objects.create(user=user, grade=self.cleaned_data['grade'])
-        return student
-
-
 class TeacherApplicationForm(forms.ModelForm):
-    """
-    Form for users to apply as a teacher.
-    """
     class Meta:
         model = TeacherApplication
-        fields = ['full_name', 'email', 'resume', 'cover_letter']
-        widgets = {
-            'full_name': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Enter your full name',
-            }),
-            'email': forms.EmailInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Enter your email address',
-            }),
-            'resume': forms.FileInput(attrs={
-                'class': 'form-control',
-            }),
-            'cover_letter': forms.Textarea(attrs={
-                'class': 'form-control',
-                'rows': 4,
-                'placeholder': 'Write your cover letter here...',
-            }),
-        }
-        labels = {
-            'full_name': 'Full Name',
-            'email': 'Email Address',
-            'resume': 'Upload Resume (PDF only)',
-            'cover_letter': 'Cover Letter',
-        }
+        fields = ['full_name', 'email', 'phone_number', 'resume', 'cover_letter']
 
-    def clean_resume(self):
-        """
-        Validate that the uploaded resume is a PDF.
-        """
-        resume = self.cleaned_data.get('resume')
-        if resume:
-            if not resume.name.endswith('.pdf'):
-                raise forms.ValidationError('Only PDF files are allowed for resumes.')
-        return resume
 
 class CourseForm(forms.ModelForm):
     class Meta:
         model = Course
-        fields = ['title', 'description', 'teacher']
-        widgets = {
-            'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Course Title'}),
-            'description': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Course Description', 'rows': 4}),
-            'teacher': forms.Select(attrs={'class': 'form-control'}),
-        }
+        fields = ['title', 'description', 'category', 'difficulty_level', 'duration', 'teacher']
 
-    def clean_title(self):
-        title = self.cleaned_data.get('title')
-        if len(title) < 5:
-            raise forms.ValidationError("Course title must be at least 5 characters long.")
-        return title
+    # Customize teacher field to show available teachers for admins
+    def __init__(self, *args, **kwargs):
+        user = kwargs.get('user')  # Get the current user from the view
+        super().__init__(*args, **kwargs)
+        if user and user.role == 'admin':
+            # Admin can select from all teachers
+            self.fields['teacher'].queryset = Teacher.objects.all()
+        elif user and user.role == 'teacher':
+            # Teacher's own teacher is pre-selected and hidden
+            self.fields['teacher'].queryset = Teacher.objects.filter(user=user)
+            self.fields['teacher'].widget = forms.HiddenInput()  # Hide the teacher field for teachers
 
 
 class QuestionForm(forms.ModelForm):
     class Meta:
         model = Question
-        fields = ['course', 'question_text', 'option1', 'option2', 'option3', 'option4', 'correct_option', 'marks']
-        widgets = {
-            'question_text': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter the question text'}),
-            'option1': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Option 1'}),
-            'option2': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Option 2'}),
-            'option3': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Option 3'}),
-            'option4': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Option 4'}),
-            'marks': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Marks for this question'}),
-            'course': forms.Select(attrs={'class': 'form-control'}),
-            'correct_option': forms.Select(choices=[(1, 'Option 1'), (2, 'Option 2'), (3, 'Option 3'), (4, 'Option 4')], attrs={'class': 'form-control'})
-        }
-
-    def clean_correct_option(self):
-        correct_option = self.cleaned_data.get('correct_option')
-        if correct_option not in [1, 2, 3, 4]:
-            raise forms.ValidationError("Invalid option for correct answer. It must be between 1 and 4.")
-        return correct_option
-
-
-
-# Teacher Form
-class TeacherForm(forms.ModelForm):
-    username = forms.CharField(max_length=150, required=True)
-    email = forms.EmailField(required=True)
-    is_approved = forms.BooleanField(required=False)
-    subject = forms.CharField(max_length=100, required=True)
-
-    class Meta:
-        model = Teacher
-        fields = ['is_approved', 'subject']
+        fields = ['course', 'question_text', 'option1', 'option2', 'option3', 'option4', 'correct_option',
+                  'question_type', 'explanation', 'marks']
 
     def __init__(self, *args, **kwargs):
-        super(TeacherForm, self).__init__(*args, **kwargs)
-        if self.instance and self.instance.user:
-            self.fields['username'].initial = self.instance.user.username
-            self.fields['email'].initial = self.instance.user.email
+        # Extract request object if passed
+        request = kwargs.pop('request', None)
+        super().__init__(*args, **kwargs)
+
+        if request:
+            if request.user.role == 'teacher':
+                # Filter courses based on the teacher's scope
+                self.fields['course'].queryset = Course.objects.filter(teacher=request.user.teacher)
+            else:
+                # Admin can see all courses
+                self.fields['course'].queryset = Course.objects.all()
 
     def save(self, commit=True):
-        teacher = super(TeacherForm, self).save(commit=False)
-        user = teacher.user
+        # Save the form but attach the quiz to the question before saving
+        question = super().save(commit=False)
 
-        user.username = self.cleaned_data['username']
-        user.email = self.cleaned_data['email']
+        # If exam (quiz) is provided, associate the question with the exam
+        if 'exam' in self.data:
+            exam = self.data.get('exam')
+            question.quiz = Quiz.objects.get(id=exam)
+
         if commit:
-            user.save()
-            teacher.save()
-        return teacher
+            question.save()
+        return question
 
 
-# Student Form
 class StudentForm(forms.ModelForm):
-    username = forms.CharField(max_length=150, required=True)
-    email = forms.EmailField(required=True)
-    grade = forms.CharField(max_length=10, required=True)
+    # We do not need to directly use 'user' in a ModelChoiceField here.
+    # Instead, you can set it properly via the foreign key relation in the view.
+    # Hence, we’ll remove the user selection field and let it be handled by the view logic.
+    # You can still display it if necessary using a custom widget, but it's better to handle
+    # the relation between the student and user via the view.
 
     class Meta:
         model = Student
-        fields = ['grade']
+        fields = ['grade', 'date_of_birth', 'phone_number', 'parent_contact', 'profile_image']
+
+    # Add any custom logic if necessary (e.g., setting 'user' automatically in the view)
+    # Optionally, you can keep the field for displaying, but it's already handled via the model's relationship.
+
+
+class SettingsForm(forms.ModelForm):
+    class Meta:
+        model = Settings
+        fields = ['site_name', 'email', 'description', 'contact_number', 'logo', 'facebook_url', 'twitter_url', 'instagram_url']
+
+class ExamForm(forms.ModelForm):
+    class Meta:
+        model = Quiz
+        fields = ['title', 'description', 'time_limit', 'questions']
+        widgets = {
+            'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Quiz Title'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Enter Quiz Description'}),
+            'time_limit': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Time Limit in Minutes'}),
+            'questions': forms.SelectMultiple(attrs={'class': 'form-control'}),
+        }
+        labels = {
+            'title': 'Quiz Title',
+            'description': 'Description',
+            'time_limit': 'Time Limit (Minutes)',
+            'questions': 'Select Questions',
+        }
 
     def __init__(self, *args, **kwargs):
-        super(StudentForm, self).__init__(*args, **kwargs)
-        if self.instance and self.instance.user:
-            self.fields['username'].initial = self.instance.user.username
-            self.fields['email'].initial = self.instance.user.email
+        super().__init__(*args, **kwargs)
+        # Dynamically set the queryset for the questions field
+        self.fields['questions'].queryset = Question.objects.all()
 
-    def save(self, commit=True):
-        student = super(StudentForm, self).save(commit=False)
-        user = student.user
 
-        user.username = self.cleaned_data['username']
-        user.email = self.cleaned_data['email']
-        if commit:
-            user.save()
-            student.save()
-        return student
+class AssignExamForm(forms.ModelForm):
+    class Meta:
+        model = StudentExam
+        fields = ['student', 'exam']
+
+    student = forms.ModelChoiceField(queryset=get_user_model().objects.filter(role='student'), required=True)
+    exam = forms.ModelChoiceField(queryset=Quiz.objects.all(), required=True)
 
