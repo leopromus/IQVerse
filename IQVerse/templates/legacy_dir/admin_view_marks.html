@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center">All Students' Exam Marks</h2>
+    <table class="table table-bordered mt-4">
+        <thead>
+            <tr>
+                <th>Student</th>
+                <th>Course</th>
+                <th>Score</th>
+                <th>Date Taken</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if marks %}
+                {% for mark in marks %}
+                    <tr>
+                        <td>{{ mark.student.user.username }}</td>
+                        <td>{{ mark.course.title }}</td>
+                        <td>{{ mark.score }}</td>
+                        <td>{{ mark.date_taken }}</td>
+                        <td>
+                            <a href="{% url 'admin_view_specific_marks' mark.student.id %}" 
+                               class="btn btn-sm btn-primary">
+                                View Student Marks
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="5" class="text-center">No marks available.</td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
