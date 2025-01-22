@@ -1,0 +1,182 @@
+{% extends 'base.html' %}
+
+
+{% block title %}Student Dashboard - Online Exam System{% endblock %}
+
+{% block content %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+
+<style>
+/* Sidebar Styles */
+.sidebar {
+    width: 250px;
+    background-color: #343a40;
+    color: #fff;
+    height: 100vh;
+    position: fixed;
+    top: 68px; /* Matches navbar height */
+    left: 0;
+    transition: width 0.3s ease;
+    overflow: hidden;
+    z-index: 1000;
+}
+
+.sidebar.collapsed {
+    width: 70px;
+}
+
+.sidebar .sidebar-header {
+    padding: 15px;
+    border-bottom: 1px solid #495057;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.sidebar .sidebar-header .logo {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.sidebar.collapsed .sidebar-header .logo {
+    display: none;
+}
+
+.sidebar .sidebar-menu {
+    list-style: none;
+    padding: 0;
+    margin: 20px 0 0 0;
+}
+
+.sidebar .sidebar-menu li {
+    padding: 10px 20px;
+}
+
+.sidebar .sidebar-menu li a {
+    color: #fff;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+}
+
+.sidebar .sidebar-menu li a i {
+    margin-right: 10px;
+    font-size: 1.2rem;
+}
+
+.sidebar.collapsed .sidebar-menu li a span {
+    display: none;
+}
+
+.sidebar.collapsed .sidebar-menu li a i {
+    margin-right: 0;
+}
+
+.sidebar .sidebar-menu li a:hover {
+    background-color: #495057;
+    border-radius: 5px;
+}
+
+/* Main Content */
+.main-content {
+    margin-left: 250px;
+    padding: 20px;
+    transition: margin-left 0.3s ease;
+}
+
+body.collapsed .main-content {
+    margin-left: 70px;
+}
+</style>
+
+<!-- Sidebar -->
+<nav id="sidebar" class="sidebar">
+    <div class="sidebar-header">
+        <div class="logo">Student Dashboard</div>
+        <button id="menuToggle" class="btn btn-outline-light btn-sm" aria-label="Toggle Sidebar">
+            <span id="menuIcon">&minus;</span>
+        </button>
+    </div>
+    <ul class="sidebar-menu">
+        <li>
+            <a href="{% url 'student_dashboard' %}">
+                <i class="bi bi-house"></i> <span>Dashboard</span>
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'view_courses' %}">
+                <i class="bi bi-folder"></i> <span>View Courses</span>
+            </a>
+        </li>
+
+<li class="{% if request.resolver_match.url_name == 'take_exam' %}active{% endif %}">
+    <a href="{% url 'student-exam' %}">
+        <i class="bi bi-pencil"></i> <span>Take Exam</span>
+    </a>
+</li>
+
+<li>
+    <a href="{% url 'quiz_transcript' %}">
+        <i class="bi bi-bar-chart-line"></i> <span>View Results</span>
+    </a>
+</li>
+
+
+     <li>
+            <a href="{% url 'logout' %}">
+                <i class="bi bi-box-arrow-right"></i> <span>Logout</span>
+            </a>
+        </li>
+    </ul>
+</nav>
+
+<!-- Main Content -->
+<div id="main-content" class="main-content">
+    <div class="container d-flex flex-column align-items-center py-4">
+        <!-- Statistics Section -->
+        <div class="dashboard-stats mb-5">
+            <h2 class="h4 mb-3">System Statistics</h2>
+            <p class="stat-item">
+                <i class="bi bi-folder me-2"></i><strong>Total Courses:</strong> {{ total_courses }}
+            </p>
+            <p class="stat-item">
+                <i class="bi bi-folder me-2"></i><strong>Total Quiz:</strong> {{ total_quizzes }}
+            </p>
+            <p class="stat-item">
+                <i class="bi bi-question-circle me-2"></i><strong>Total Questions:</strong> {{ total_questions }}
+            </p>
+
+            <a href="{% url 'student-exam' %}">Go to Exams</a>
+
+        </div>
+
+    </div>
+</div>
+
+
+<script>
+document.getElementById('menuToggle').addEventListener('click', function () {
+    const sidebar = document.getElementById('sidebar');
+    const body = document.body;
+    const menuIcon = document.getElementById('menuIcon');
+
+    sidebar.classList.toggle('collapsed');
+    body.classList.toggle('collapsed');
+
+    menuIcon.innerHTML = sidebar.classList.contains('collapsed') ? '&plus;' : '&minus;';
+});
+
+
+</script>
+
+<script>
+    function showLoader() {
+        const loader = document.createElement('div');
+        loader.className = 'loader';
+        document.body.appendChild(loader);
+    }
+</script>
+
+{% endblock %}
