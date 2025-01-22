@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+
+
+{% block title %}Add Course - Online Exam System{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <h1 class="mb-4 text-center">Add a New Course</h1>
+
+            <!-- Display Success and Error Messages -->
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <!-- Form Errors -->
+            {% if form.errors %}
+                <div class="alert alert-danger">
+                    <ul class="mb-0">
+                        {% for field, errors in form.errors.items %}
+                            {% for error in errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+
+            <!-- Add Course Form -->
+            <form method="POST" class="shadow p-4 bg-light rounded">
+                {% csrf_token %}
+
+                <!-- If user is a teacher, the teacher field is hidden -->
+                {% if request.user.role == 'teacher' %}
+                    {{ form.teacher }}
+                {% elif request.user.role == 'admin' %}
+                    <div class="form-group mb-3">
+                        <label for="{{ form.teacher.id_for_label }}" class="form-label">Select Teacher</label>
+                        {{ form.teacher|add_class:"form-control" }}
+                    </div>
+                {% endif %}
+
+                <div class="form-group mb-3">
+                    <label for="{{ form.title.id_for_label }}" class="form-label">Course Title</label>
+                    {{ form.title|add_class:"form-control" }}
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="{{ form.description.id_for_label }}" class="form-label">Course Description</label>
+                    {{ form.description|add_class:"form-control" }}
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="{{ form.category.id_for_label }}" class="form-label">Course Category</label>
+                    {{ form.category|add_class:"form-control" }}
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="{{ form.difficulty_level.id_for_label }}" class="form-label">Difficulty Level</label>
+                    {{ form.difficulty_level|add_class:"form-control" }}
+                </div>
+
+                <div class="form-group mb-4">
+                    <label for="{{ form.duration.id_for_label }}" class="form-label">Duration (in weeks)</label>
+                    {{ form.duration|add_class:"form-control" }}
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100">Add Course</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
