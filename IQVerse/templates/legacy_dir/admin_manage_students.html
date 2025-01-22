@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <!-- Button to go back to admin dashboard -->
+    <a href="{% url 'admin_dashboard' %}" class="btn btn-back-dashboard mb-4">
+        <i class="bi bi-house-door"></i> Back to Admin Dashboard
+    </a>
+    <div class="container">
+        <div class="header-section">
+            <h2><i class="bi bi-people"></i> Manage Students</h2>
+            <a href="{% url 'admin_add_student' %}" class="btn btn-add-student">
+                <i class="bi bi-plus-circle"></i> Add New Student
+            </a>
+        </div>
+
+        <ul class="list-group student-list">
+            {% for student in students %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                    <img src="{{ student.profile_image.url }}" alt="{{ student.user.username }}" class="student-img me-3">
+                    <div>
+                        <span><i class="bi bi-person-circle"></i> {{ student.user.username }}</span><br>
+                        <small class="text-muted">
+                            <i class="bi bi-envelope"></i> Email: {{ student.user.email }} <br>
+                            <i class="bi bi-person"></i> Name: {{ student.user.first_name }} {{ student.user.last_name }} <br>
+                            <i class="bi bi-calendar"></i> Username: {{ student.user.username }} <br>
+                            <i class="bi bi-mortarboard"></i> Grade: {{ student.grade }} <br>
+                            {% if student.user.cis_active %}
+                                <span class="text-success"><i class="bi bi-check-circle"></i> Enrolled</span>
+                            {% else %}
+                                <span class="text-warning"><i class="bi bi-exclamation-circle"></i> Not Enrolled</span>
+                            {% endif %}
+                        </small>
+                    </div>
+                </div>
+                <div>
+                    <a href="#" class="text-danger me-2"><i class="bi bi-trash"></i></a>
+                    <a href="#" class="text-primary"><i class="bi bi-pencil"></i></a>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock %}
