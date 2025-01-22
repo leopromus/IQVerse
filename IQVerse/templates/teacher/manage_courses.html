@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="container d-flex flex-column align-items-center">
+        <h1>Manage Courses</h1>
+
+        <!-- Add Course Button -->
+        <a href="{% url 'add_course' %}" class="btn btn-primary mb-3">Add New Course</a>
+
+        <!-- Course List Table -->
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Title</th>
+                    <th>Description</th>
+                    <th>Teacher</th>
+                    <th>Category</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for course in courses %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ course.title }}</td>
+                        <td>{{ course.description|slice:":100" }}{% if course.description|length > 100 %}...{% endif %}</td>
+                        <td>{{ course.teacher.user.username }}</td>
+                        <td>{{ course.category }}</td>
+                        <td>
+                            <!-- Edit and Delete buttons (if needed) -->
+                            <a href="{% url 'update_course' course.id %}" class="btn btn-warning btn-sm">Edit</a>
+                            <a href="{% url 'delete_course' course.id %}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this course?')">Delete</a>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center">No courses available.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}
