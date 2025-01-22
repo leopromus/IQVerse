@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>Resume Quiz: {{ quiz.title }}</h2>
+  <p><strong>Description:</strong> {{ quiz.description }}</p>
+
+  <form method="POST">
+    {% csrf_token %}
+
+    <h3>Unanswered Questions</h3>
+    <ul>
+      {% for question in unanswered_questions %}
+        <li>
+          <p><strong>{{ question.question_text }}</strong></p>
+          <ul>
+            {% for choice in question.choices.all %}
+              <li>
+                <input type="radio" name="question_{{ question.id }}" value="{{ choice.id }}"
+                       {% if selected_answers|dictsort:question.id == choice.id %}
+                         checked
+                       {% endif %}>
+                <label>{{ choice.choice_text }}</label>
+              </li>
+            {% endfor %}
+          </ul>
+        </li>
+      {% endfor %}
+    </ul>
+
+    <button type="submit">Submit Remaining Answers</button>
+  </form>
+
+  <p>
+    <a href="{% url 'student_dashboard' %}">Back to Dashboard</a>
+  </p>
+{% endblock %}
