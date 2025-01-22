@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <!-- Page Title -->
+    <div class="text-center mb-4">
+        <h2 class="text-primary">
+            <i class="bi bi-trophy-fill"></i> Quiz Results: {{ quiz.title }}
+        </h2>
+        <p class="lead text-secondary">
+            <strong>Your final score:</strong> <span class="text-success">{{ score }}%</span>
+        </p>
+    </div>
+
+    <!-- Results Breakdown -->
+    <div class="card shadow-lg">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0">
+                <i class="bi bi-graph-up-arrow"></i> Results Breakdown
+            </h3>
+        </div>
+        <div class="card-body">
+            <ul class="list-group">
+                {% for answer in user_answers %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>Question {{ forloop.counter }}: Selected Option: <strong>{{ answer.selected_option }}</strong></span>
+                        {% if answer.is_correct %}
+                            <span class="badge bg-success">
+                                <i class="bi bi-check-circle"></i> Correct
+                            </span>
+                        {% else %}
+                            <span class="badge bg-danger">
+                                <i class="bi bi-x-circle"></i> Incorrect
+                            </span>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <!-- Back to Dashboard Button -->
+    <div class="text-center mt-4">
+        <a href="{% url 'student_dashboard' %}" class="btn btn-primary">
+            <i class="bi bi-arrow-left-circle"></i> Back to Dashboard
+        </a>
+    </div>
+  qwertyujnbvcxsrthnbvcjhnbvcfghjnb
+</div>
+{% endblock %}
