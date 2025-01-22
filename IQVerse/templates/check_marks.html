@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Quiz Results{% endblock %}
+
+{% block content %}
+<h2>Results for Quiz: {{ quiz.name }}</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Question</th>
+      <th>Your Answer</th>
+      <th>Correct Answer</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for result in results %}
+      <tr>
+        <td>{{ result.question.text }}</td>
+        <td>{{ result.selected_answer }}</td>
+        <td>{{ result.correct_answer }}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
