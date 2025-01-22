@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Questions for {{ exam.title }}{% endblock %}
+
+{% block content %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+
+<div class="container mt-5 d-flex flex-column align-items-center">
+    <h1 class="mb-4">Manage Questions for {{ exam.title }}</h1>
+    <a href="{% url 'add_question' exam.id %}" class="btn btn-primary mb-3">Add New Question</a>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Question</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for question in questions %}
+                <tr>
+                    <td>{{ question.question_text }}</td>
+                    <td>
+                        <a href="{% url 'edit_question' question.id %}" class="btn btn-warning btn-sm">Edit</a>
+                        <a href="{% url 'delete_question' question.id %}" class="btn btn-danger btn-sm">Delete</a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="2" class="text-center">No questions found for this exam.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="{% url 'manage_exams' %}" class="btn btn-secondary">Back to Exam List</a>
+</div>
+{% endblock %}

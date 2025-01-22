@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block content %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+
+<div class="container mt-5 d-flex flex-column align-items-center">
+    <!-- Page Header -->
+    <h2 class="text-primary fw-bold">Manage Questions</h2>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+         <a href="{% url 'add_question' %}" class="btn btn-primary">
+            <i class="bi bi-plus-circle me-1"></i> Add New Question
+        </a>
+    </div>
+
+    <!-- Questions List -->
+    <ul class="list-group">
+        {% for question in questions %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <span class="fw-bold">{{ question.question_text }}</span>
+                <div>
+                    <a href="{% url 'update_question' question.id %}" class="btn btn-sm btn-outline-secondary me-2">
+                        <i class="bi bi-pencil"></i>
+                    </a>
+                    <a href="{% url 'delete_question' question.id %}" class="btn btn-sm btn-outline-danger">
+                        <i class="bi bi-trash"></i>
+                    </a>
+
+                </div>
+            </li>
+        {% empty %}
+            <!-- No Questions Message -->
+            <div class="alert alert-info mt-4" role="alert">
+                <i class="bi bi-info-circle me-2"></i> No questions available. Click "Add New Question" to create one.
+            </div>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}
