@@ -1,68 +1,221 @@
-from datetime import timezone
+from datetime import date
+from email.policy import default
 
-from django.contrib.auth.models import User
+from django.utils import timezone
 from django.db import models
+from django.contrib.auth.models import AbstractUser
+from django.contrib.auth import get_user_model  # Assuming you use the custom User model
+
+# User Model
+class User(AbstractUser):
+    ROLE_CHOICES = [
+        ('teacher', 'Teacher'),
+        ('student', 'Student'),
+        ('admin', 'Admin'),
+    ]
+    role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='student')
+    email = models.EmailField(unique=True)
+    date_joined = models.DateTimeField(auto_now=True)
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.username
+
 
 # Teacher Model
 class Teacher(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)  # Link to the User model
-    is_approved = models.BooleanField(default=False)  # Approval status for the teacher
-    subject = models.CharField(max_length=100)  # Subject taught by the teacher
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='teacher')
+    subject = models.CharField(max_length=100)
+    is_approved = models.BooleanField(default=False)
+    experience = models.IntegerField(default=0)  # In years
+    qualification = models.CharField(max_length=255, null=True, blank=True)
+    bio = models.TextField(null=True, blank=True)
+    phone_number = models.CharField(max_length=15, null=True, blank=True, default=None)
+    profile_image = models.ImageField(upload_to='teacher_profiles/', null=True, blank=True)
 
     def __str__(self):
-        return self.user.username  # Return the username for easy identification
+        return f"{self.user.username} - {self.subject}"
+
 
 # Student Model
 class Student(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)  # Link to the User model
-    grade = models.CharField(max_length=10)  # Grade of the student
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='student')
+    grade = models.CharField(max_length=10)
+    date_of_birth = models.DateField(default=date(2000, 1, 1))
+    phone_number = models.CharField(max_length=15, null=True, blank=True, default=None)
+    parent_contact = models.CharField(max_length=15, null=True, blank=True)
+    profile_image = models.ImageField(upload_to='student_profiles/', null=True, blank=True)
 
     def __str__(self):
-        return self.user.username  # Return the username for easy identification
+        return f"{self.user.username} - {self.grade}"
+
+
+# Quiz Model
+class Quiz(models.Model):
+    title = models.CharField(max_length=255)
+    description = models.TextField()
+    time_limit = models.IntegerField()  # Time in minutes
+    created_at = models.DateTimeField(auto_now=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    questions = models.ManyToManyField('Question', related_name='quizzes')  # Relate Quiz to multiple questions
+
+    def total_marks(self):
+        # Sum the marks of all questions related to this quiz
+        return sum(question.marks for question in self.questions.all())
+
+    def __str__(self):
+        return self.title
+
 
 # Course Model
 class Course(models.Model):
-    title = models.CharField(max_length=200)  # Title of the course
-    description = models.TextField()  # Detailed description of the course
-    teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE)  # Link to the teacher who teaches the course
+    teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE, related_name='courses')
+    title = models.CharField(max_length=255)
+    description = models.TextField()
+    category = models.CharField(max_length=100, default="")
+    difficulty_level = models.CharField(max_length=50, choices=[('beginner', 'Beginner'), ('intermediate', 'Intermediate'), ('advanced', 'Advanced')])
+    duration = models.IntegerField(default=0)  # Duration in weeks
+    created_at = models.DateTimeField(auto_now=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.title  # Return the course title for easy identification
+        return self.title
+
 
 # Question Model
 class Question(models.Model):
-    course = models.ForeignKey(Course, on_delete=models.CASCADE)  # Link to the course this question belongs to
-    question_text = models.CharField(max_length=500)  # The question text
-    option1 = models.CharField(max_length=200)  # Option 1 for MCQ
-    option2 = models.CharField(max_length=200)  # Option 2 for MCQ
-    option3 = models.CharField(max_length=200)  # Option 3 for MCQ
-    option4 = models.CharField(max_length=200)  # Option 4 for MCQ
-    correct_option = models.IntegerField()  # Index of the correct option (1-4)
-    marks = models.IntegerField()  # Marks for this question
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='questions_in_quiz',default='')  # Unique related_name
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='questions_in_course',default=None)  # Unique related_name
+    question_text = models.TextField()
+    option1 = models.CharField(max_length=255)
+    option2 = models.CharField(max_length=255)
+    option3 = models.CharField(max_length=255)
+    option4 = models.CharField(max_length=255)
+    correct_option = models.CharField(max_length=1)  # Index (1-4)
+    question_type = models.CharField(max_length=50, choices=[('multiple_choice', 'Multiple Choice'), ('true_false', 'True/False')])
+    explanation = models.TextField(null=True, blank=True)
+    marks = models.IntegerField()
 
     def __str__(self):
-        return self.question_text  # Return the question text for easy identification
+        return f"Q{self.id}: {self.question_text}"
+
+
+
 
 # Marks Model
 class Marks(models.Model):
-    student = models.ForeignKey(Student, on_delete=models.CASCADE)  # Link to the student who took the exam
-    course = models.ForeignKey(Course, on_delete=models.CASCADE)  # Link to the course the student is enrolled in
-    score = models.IntegerField()  # The score obtained in the exam
-    date_taken = models.DateTimeField(auto_now_add=True)  # Date and time when the exam was taken
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='marks')
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='marks',default="")
+    score = models.FloatField()
+    grade = models.CharField(max_length=2)
+    feedback = models.TextField(null=True, blank=True)
+    date_taken = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.student.user.username} - {self.course.title}"  # Display the student username and course title
+        return f"{self.student.user.username} - {self.course.title} - {self.score}"
+
 
 # Teacher Application Model
-
 class TeacherApplication(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    full_name = models.CharField(max_length=255,default='')
-    email = models.EmailField(default="<EMAIL>",)
-    resume = models.FileField(upload_to='resumes/',default='resumes/default.png')
-    cover_letter = models.TextField(default='',)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='teacher_applications')
+    full_name = models.CharField(max_length=255)
+    email = models.EmailField()
+    phone_number = models.CharField(max_length=15, null=True, blank=True, default=None)
+    resume = models.FileField(upload_to='teacher_applications/resumes/', null=True, blank=True)
+    cover_letter = models.TextField()
     approved = models.BooleanField(default=False)
     applied_on = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.full_name} - {('Approved' if self.approved else 'Pending')}"
+        return f"{self.full_name} - {'Approved' if self.approved else 'Pending'}"
+
+
+# Choice Model
+class Choice(models.Model):
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='choices')
+    text = models.CharField(max_length=255)
+    is_correct = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"Choice {self.id} for Question {self.question.id}"
+
+
+# User Quiz Attempt Model
+class UserQuizAttempt(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='quiz_attempts')
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='attempts')
+    score = models.FloatField()
+    completed = models.BooleanField(default=False)
+    started_at = models.DateTimeField()
+    completed_at = models.DateTimeField(null=True, blank=True)
+    recorded = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.quiz.title}"
+
+
+class UserAnswer(models.Model):
+    attempt = models.ForeignKey('UserQuizAttempt', on_delete=models.CASCADE, related_name='answers')
+    question = models.ForeignKey('Question', on_delete=models.CASCADE)
+    selected_option = models.CharField(max_length=1,default=1)  # To store '1', '2', '3', or '4'
+    is_correct = models.BooleanField()  # Whether the selected option is correct
+
+
+    def __str__(self):
+        return f"{self.attempt.user.username} - {self.question.id}"
+
+
+# Feedback Model
+class Feedback(models.Model):
+    attempt = models.ForeignKey(UserQuizAttempt, on_delete=models.CASCADE, related_name='feedback')
+    feedback_text = models.TextField()
+    created_at = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return f"Feedback for {self.attempt.user.username} - {self.attempt.quiz.title}"
+
+
+# Leaderboard Model
+class Leaderboard(models.Model):
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='leaderboard')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='leaderboard')
+    score = models.FloatField()
+    date_achieved = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return f"Leaderboard: {self.user.username} - {self.score}"
+
+
+# Settings Model
+class Settings(models.Model):
+    site_name = models.CharField(max_length=100, default="My Site")
+    email = models.EmailField()
+    description = models.TextField(null=True, blank=True)
+    contact_number = models.CharField(max_length=15, null=True, blank=True)
+    logo = models.ImageField(upload_to='site_logos/', null=True, blank=True)
+    facebook_url = models.URLField(null=True, blank=True)
+    twitter_url = models.URLField(null=True, blank=True)
+    instagram_url = models.URLField(null=True, blank=True)
+
+    def __str__(self):
+        return self.site_name
+
+    @classmethod
+    def get_settings(cls):
+        return cls.objects.first() or cls.objects.create(site_name="My Site", email="info@example.com")
+
+
+class StudentExam(models.Model):
+    student = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, limit_choices_to={'role': 'student'})
+    exam = models.ForeignKey(Quiz, on_delete=models.CASCADE)
+    assigned_on = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.student.username} - {self.exam.title}"
+
+
+class QuizAttemptHistory(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
+    score = models.IntegerField()
+    attempt_date = models.DateTimeField(auto_now_add=True)
