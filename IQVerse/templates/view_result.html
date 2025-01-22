@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5 d-flex flex-column align-items-center">
+    <!-- Marks Results Header -->
+    <div class="text-center mb-4">
+        <h2 class="text-primary">Your Marks and Feedback</h2>
+        <p class="lead text-secondary">
+            <strong>Review your marks and answers below:</strong>
+        </p>
+    </div>
+
+    <!-- Messages -->
+    {% if messages %}
+        <div class="alert-messages">
+            {% for message in messages %}
+                <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Marks Results -->
+    <div class="card shadow-lg mb-4">
+        <div class="card-header bg-secondary text-white">
+            <h4 class="mb-0">
+                <i class="bi bi-clipboard-data"></i> Your Marks
+            </h4>
+        </div>
+        <div class="card-body">
+            <ul class="list-group">
+                {% for mark in marks %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>
+                        <strong>Course: </strong>{{ mark.course.title }}
+                    </span>
+                    <span>
+                        <strong>Score:</strong> {{ mark.score }}%
+                    </span>
+                    <span>
+                        <strong>Grade:</strong> {{ mark.grade }}
+                    </span>
+                    <span>
+                        <strong>Date:</strong> {{ mark.date_taken|date:"D, d M Y H:i" }}
+                    </span>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <!-- Marks Feedback -->
+    {% if feedback %}
+    <div class="card shadow-lg mb-4">
+        <div class="card-header bg-info text-white">
+            <h4 class="mb-0">
+                <i class="bi bi-file-earmark-text"></i> Your Feedback
+            </h4>
+        </div>
+        <div class="card-body">
+            <ul class="list-group">
+                {% for mark in marks %}
+                    <li class="list-group-item">
+                        <strong>{{ mark.course.title }} Feedback:</strong>
+                        {% if mark.feedback %}
+                            <p>{{ mark.feedback }}</p>
+                        {% else %}
+                            <p>No feedback available.</p>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Answers Section -->
+    {% if answers %}
+    <div class="card shadow-lg mb-4">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">
+                <i class="bi bi-pencil"></i> Your Answers
+            </h4>
+        </div>
+        <div class="card-body">
+            <ul class="list-group">
+                {% for answer in answers %}
+                <li class="list-group-item">
+                    <strong>Question {{ forloop.counter }}:</strong>
+                    <p>{{ answer.question.text }}</p>
+                    <strong>Your Answer:</strong> {{ answer.selected_option.text }}
+                    <br>
+                    {% if answer.correct %}
+                        <span class="badge bg-success"><i class="bi bi-check-circle"></i> Correct</span>
+                    {% else %}
+                        <span class="badge bg-danger"><i class="bi bi-x-circle"></i> Incorrect</span>
+                    {% endif %}
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Back to Dashboard -->
+    <div class="text-center mt-4">
+        <a href="{% url 'student_dashboard' %}" class="btn btn-primary btn-lg rounded-pill shadow-lg">
+            <i class="bi bi-arrow-left-circle"></i> Back to Dashboard
+        </a>
+    </div>
+</div>
+{% endblock %}

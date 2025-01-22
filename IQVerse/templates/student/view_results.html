@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5 d-flex flex-column align-items-center">
+    <!-- Page Title -->
+    <div class="text-center mb-4">
+        <h2 class="text-primary">
+            <i class="bi bi-list-check"></i> Quiz Attempt Summary: {{ quiz.title }}
+        </h2>
+        <p class="lead text-secondary">
+            <strong>Review your attempt details below:</strong>
+        </p>
+    </div>
+
+    <!-- Attempt Summary -->
+    <div class="card shadow-lg mb-4">
+        <div class="card-header bg-secondary text-white">
+            <h3 class="mb-0">
+                <i class="bi bi-clipboard-data"></i> Attempt Summary
+            </h3>
+        </div>
+        <div class="card-body">
+            <p><strong>Attempt Date:</strong> {{ attempt.started_at|date:"D, d M Y H:i" }}</p>
+            <p><strong>Total Marks Scored:</strong> {{ total_score }}</p>
+            <p><strong>Maximum Marks:</strong> {{ max_score }}</p>
+            <p><strong>Percentage:</strong> {{ score }}%</p>
+            <p><strong>Status:</strong>
+                {% if attempt.completed %}
+                    <span class="badge bg-success"><i class="bi bi-check-circle"></i> Completed</span>
+                {% else %}
+                    <span class="badge bg-warning"><i class="bi bi-hourglass-split"></i> In Progress</span>
+                {% endif %}
+            </p>
+        </div>
+    </div>
+
+    <!-- Question Breakdown -->
+    <div class="card shadow-lg mb-4">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0">
+                <i class="bi bi-question-circle"></i> Question Breakdown
+            </h3>
+        </div>
+        <div class="card-body">
+            <ul class="list-group">
+                {% for question in questions %}
+                <li class="list-group-item">
+                    <strong>Question {{ forloop.counter }}:</strong>
+                    <p>{{ question.text }}</p>
+                    <p><strong>Your Answer:</strong> {{ question.selected_option }}</p>
+                    <p><strong>Correct Answer:</strong> {{ question.correct_option }}</p>
+                    {% if question.correct %}
+                        <span class="badge bg-success"><i class="bi bi-check-circle"></i> Correct</span>
+                        <p><strong>Marks:</strong> {{ question.marks }}</p>
+                    {% else %}
+                        <span class="badge bg-danger"><i class="bi bi-x-circle"></i> Incorrect</span>
+                        <p><strong>Marks:</strong> 0</p>
+                    {% endif %}
+                    <p><strong>Feedback:</strong> {{ question.feedback|default:"No feedback provided." }}</p>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <!-- Attempt Feedback -->
+    {% if attempt.feedback %}
+    <div class="card shadow-lg mb-4">
+        <div class="card-header bg-info text-white">
+            <h3 class="mb-0">
+                <i class="bi bi-chat-dots"></i> Overall Feedback
+            </h3>
+        </div>
+        <div class="card-body">
+            <p>{{ attempt.feedback }}</p>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Retake Quiz Button -->
+    <div class="text-center mt-3">
+        {% if not attempt.completed %}
+            <a href="{% url 'resume_exam' attempt_id=attempt.id %}" class="btn btn-warning btn-lg rounded-pill">
+                <i class="bi bi-arrow-clockwise"></i> Retake Quiz
+            </a>
+        {% else %}
+            <a href="{% url 'start-exam' quiz.id %}" class="btn btn-success btn-lg rounded-pill">
+                <i class="bi bi-arrow-repeat"></i> Start a New Attempt
+            </a>
+        {% endif %}
+    </div>
+
+    <!-- Back to Dashboard Button -->
+    <div class="text-center mt-4">
+        <a href="{% url 'student_dashboard' %}" class="btn btn-primary btn-lg rounded-pill">
+            <i class="bi bi-arrow-left-circle"></i> Back to Dashboard
+        </a>
+    </div>
+</div>
+{% endblock %}

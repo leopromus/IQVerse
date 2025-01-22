@@ -1,7 +1,0 @@
-<h2>Teacher Application Status</h2>
-{% if request.user.teacher.approved %}
-    <p>Status: ✅ Approved</p>
-    <a href="{% url 'teacher_dashboard' %}" class="btn btn-primary">Go to Dashboard</a>
-{% else %}
-    <p>Status: ⏳ Pending Approval</p>
-{% endif %}

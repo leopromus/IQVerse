@@ -1,0 +1,21 @@
+<!-- student_marks.html -->
+<h2>Your Marks</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Quiz</th>
+      <th>Score</th>
+      <th>Grade</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for mark in marks %}
+      <tr>
+        <td>{{ mark.quiz.name }}</td>
+        <td>{{ mark.score }}</td>
+        <td>{{ mark.grade }}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>

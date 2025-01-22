@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block title %}View Exam{% endblock %}
+{% block content %}
+<div class="container mt-5 d-flex flex-column align-items-center">
+    <h1>Exam Details</h1>
+    <p><strong>Name:</strong> {{ exam.title }}</p>
+    <p><strong>Course:</strong> {{ exam.description }}</p>
+    <p><strong>Date:</strong> {{ exam.created_at }}</p>
+    <p><strong>Description:</strong> {{ exam.description }}</p>
+    <a href="{% url 'manage_exams' %}" class="btn btn-secondary">Back</a>
+</div>
+{% endblock %}

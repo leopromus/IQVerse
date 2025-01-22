@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container d-flex flex-column align-items-center">
+
+    <h1 class="mb-4">Your Courses</h1>
+
+<table class="table table-bordered table-striped">
+    <thead class="thead-dark">
+        <tr>
+            <th>Title</th>
+            <th>Description</th>
+            <th>Category</th>
+            <th>Difficulty Level</th>
+            <th>Duration</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for course in courses %}
+        <tr>
+            <td>{{ course.title }}</td>
+            <td>{{ course.description }}</td>
+            <td>{{ course.category }}</td>
+            <td>{{ course.difficulty_level }}</td>
+            <td>{{ course.duration }}</td>
+            <td>
+             <a href="{% url 'take_exam' course.id %}">{{ course.title }} - {{ course.teacher.user.username }}</a>
+
+
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+
+</div>
+
+
+{% endblock %}

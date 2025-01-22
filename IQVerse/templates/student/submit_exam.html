@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>Submit Exam: {{ attempt.quiz.title }}</h2>
+  
+  <form method="POST">
+    {% csrf_token %}
+    <div class="quiz-questions">
+      {% for question in attempt.quiz.questions.all %}
+        <fieldset>
+          <legend>{{ question.text }}</legend>
+          {% for choice in question.choices.all %}
+            <div>
+              <label>
+                <input type="radio" name="question_{{ question.id }}" value="{{ choice.id }}" 
+                       {% if choice.id == existing_answer.choice.id %} checked {% endif %}>
+                {{ choice.text }}
+              </label>
+            </div>
+          {% endfor %}
+        </fieldset>
+      {% endfor %}
+    </div>
+    
+    <button type="submit">Submit Exam</button>
+  </form>
+{% endblock %}

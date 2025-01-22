@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>Take Quiz: {{ quiz.title }} (Course: {{ course.name }})</h2>
+
+  <!-- Timer and Progress Bar -->
+  <div class="mb-3">
+    <label for="timer" class="form-label">Time Remaining: <span id="timer">{{ quiz.time_limit }} minutes</span></label>
+    <div class="progress">
+      <div id="timeProgress" class="progress-bar" role="progressbar" style="width: 100%;" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+    </div>
+  </div>
+
+  <form method="POST">
+    {% csrf_token %}
+    <div class="questions">
+      <!-- Render all questions in the quiz -->
+      {% for question in quiz.questions.all %}
+        <div class="question">
+          <p><strong>Question {{ forloop.counter }}: {{ question.text }}</strong></p>
+
+          <ul>
+            {% for choice in question.choices.all %}
+              <li>
+                <input type="radio" name="question_{{ question.id }}" value="{{ choice.id }}"
+                       {% if choice.id in selected_answers %}
+                       checked
+                       {% endif %}>
+                <label>{{ choice.text }}</label>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% endfor %}
+    </div>
+
+    <!-- Submit button for the entire quiz -->
+    <button type="submit" class="btn btn-primary">Submit Quizzes</button>
+  </form>
+
+  <script>
+    // Assuming quiz time limit is in seconds for easier calculation
+    var timeLimitInSeconds = {{ quiz.time_limit }} * 60;
+    var timeLeft = timeLimitInSeconds;
+    var timerElement = document.getElementById("timer");
+    var progressBar = document.getElementById("timeProgress");
+
+    // Update function for the countdown timer and progress bar
+    function updateTimer() {
+      var minutes = Math.floor(timeLeft / 60);
+      var seconds = timeLeft % 60;
+      timerElement.textContent = `${minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
+
+      var percentage = (timeLeft / timeLimitInSeconds) * 100;
+      progressBar.style.width = percentage + "%";
+
+      // Color change based on remaining time
+      if (percentage > 50) {
+        progressBar.classList.remove("bg-warning", "bg-danger");
+        progressBar.classList.add("bg-success");
+      } else if (percentage > 20) {
+        progressBar.classList.remove("bg-success", "bg-danger");
+        progressBar.classList.add("bg-warning");
+      } else {
+        progressBar.classList.remove("bg-success", "bg-warning");
+        progressBar.classList.add("bg-danger");
+      }
+
+      // Decrement time every second
+      if (timeLeft > 0) {
+        timeLeft--;
+      } else {
+        // Automatically submit the quiz when time is up (optional)
+        document.querySelector("form").submit();
+      }
+    }
+
+    // Start the countdown timer
+    setInterval(updateTimer, 1000);
+  </script>
+{% endblock %}

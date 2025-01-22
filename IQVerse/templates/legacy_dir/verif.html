@@ -1,0 +1,370 @@
+{% load static %}
+{% load crispy_forms_tags %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-size: 0.9rem; /* Reduced font size */
+        }
+    
+
+        .navbar-custom .navbar-nav .nav-link {
+            color: #ffffff;
+        }
+        .navbar-custom .navbar-nav .nav-link:hover {
+            color: #007bff;
+        }
+        .dashboard-container {
+            margin-top: 50px;
+        }
+        .welcome-card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background-color: #ffffff;
+        }
+        .welcome-icon {
+            font-size: 4rem;
+            color: #007bff;
+        }
+        .role-specific-section {
+            margin-top: 20px;
+        }
+        .dashboard-link {
+            text-decoration: none;
+            font-weight: bold;
+            color: #007bff;
+        }
+        .dashboard-link:hover {
+            text-decoration: underline;
+        }
+        .alert-custom {
+            font-size: 0.85rem;
+            color: #ffffff;
+        }
+        .hero-text {
+            color: white;
+            text-align: center;
+            padding: 5rem 0;
+        }
+        .hero-btns .btn {
+            font-size: 0.85rem;
+            padding: 10px 20px;
+            margin: 5px;
+        }
+        .alert i {
+            font-size: 1.5rem;
+        }
+         .navbar-custom {
+            background-color: transparent; /* Remove white background */
+        }
+
+        #logo_name{
+            color: red; /* Make the logo text red */
+            font-weight: bold;
+        }
+
+        #logo_btn{
+            border-color: transparent; /* Remove border color */
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-primary-custom">
+        <div class="container-fluid">
+
+            <a class="navbar-brand" href="{% url 'home' %}" id="logo_name">IQVerse</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+
+            <button class="navbar-toggler" id="logo_btn" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                   {% if user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'logout' %}"><i class="bi bi-box-arrow-right"></i> Logout</a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'login' %}"><i class="bi bi-box-arrow-in-right"></i> Login</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'signup' %}"><i class="bi bi-person-plus"></i> Sign Up</a>
+                        </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="#about-us">About Us</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#team">Our Team</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#pricing">Pricing</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+
+
+
+
+
+
+
+
+
+
+    <!-- Homepage Hero Section for Unauthenticated Users -->
+    <!-- Hero Section -->
+    {% if not user.is_authenticated %}
+        <div class="container-fluid py-5 bg-primary">
+            <div class="hero-text text-center">
+                <h1 class="display-4 text-white">Welcome to the Education Platform</h1>
+                <p class="lead text-white">A platform where teachers, students, and administrators can interact and grow together.</p>
+                <div class="hero-btns">
+                    <a href="{% url 'signup' %}" class="btn btn-light btn-lg">Sign Up</a>
+                    <a href="{% url 'login' %}" class="btn btn-outline-light btn-lg">Login</a>
+                </div>
+            </div>
+        </div>
+
+    <!-- Features Section -->
+    <div class="container my-5">
+        <div class="row text-center">
+            <div class="col-md-4">
+                <h4><i class="bi bi-mortarboard"></i> For Teachers</h4>
+                <p>Manage courses, approve students, and track progress.</p>
+            </div>
+            <div class="col-md-4">
+                <h4><i class="bi bi-person"></i> For Students</h4>
+                <p>Enroll in courses, track progress, and interact with teachers.</p>
+            </div>
+            <div class="col-md-4">
+                <h4><i class="bi bi-gear"></i> For Admin</h4>
+                <p>Manage teachers, students, and courses with ease.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- About Us Section -->
+    <div class="container my-5" id="about-us">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <h2>About Us</h2>
+                <p>We are dedicated to providing an interactive platform that facilitates growth in education. Our mission is to connect teachers, students, and administrators to create an effective learning environment.</p>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <img src="{% static 'img_7.png' %}" class="card-img-top" alt="About Us Image">
+                    <div class="card-body">
+                        <p class="card-text">Learn more about how we can help transform education.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Our Team Section -->
+    <div class="container my-5" id="team">
+        <h2 class="text-center">Meet Our Team</h2>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card">
+                    <img src="{% static 'img_1.png' %}" class="card-img-top" alt="Team Member">
+                    <div class="card-body">
+                        <h5 class="card-title">John Doe</h5>
+                        <p class="card-text">CEO & Founder</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <img src="{% static 'img_2.png' %}" class="card-img-top" alt="Team Member">
+                    <div class="card-body">
+                        <h5 class="card-title">Jane Smith</h5>
+                        <p class="card-text">Lead Developer</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <img src="{% static 'img_2.png' %}" class="card-img-top" alt="Team Member">
+                    <div class="card-body">
+                        <h5 class="card-title">Alex Johnson</h5>
+                        <p class="card-text">Project Manager</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Testimonials Section -->
+    <div class="container my-5">
+        <h2 class="text-center">What Our Users Say</h2>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card">
+                    <img src="{% static 'img_4.png' %}" class="card-img-top" alt="User Testimonial">
+                    <div class="card-body">
+                        <p class="card-text">"This platform has helped me connect with my students like never before!"</p>
+                        <footer class="blockquote-footer">Sarah Lee, Teacher</footer>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <img src="{% static 'img_5.png' %}" class="card-img-top" alt="User Testimonial">
+                    <div class="card-body">
+                        <p class="card-text">"As a student, this platform makes learning more interactive and fun."</p>
+                        <footer class="blockquote-footer">Michael Brown, Student</footer>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <img src="{% static 'img_5.png' %}" class="card-img-top" alt="User Testimonial">
+                    <div class="card-body">
+                        <p class="card-text">"An excellent platform to manage everything in one place!"</p>
+                        <footer class="blockquote-footer">Linda Green, Admin</footer>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pricing Section -->
+    <div class="container my-5" id="pricing">
+        <h2 class="text-center">Pricing Plans</h2>
+        <div class="row text-center">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Free</h5>
+                        <p class="card-text">Access basic features with no cost.</p>
+                        <a href="{% url 'signup' %}" class="btn btn-primary">Sign Up</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Basic</h5>
+                        <p class="card-text">$10/month - Access additional features and content.</p>
+                        <a href="{% url 'signup' %}" class="btn btn-primary">Sign Up</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Premium</h5>
+                        <p class="card-text">$20/month - Unlock all features and content.</p>
+                        <a href="{% url 'signup' %}" class="btn btn-primary">Sign Up</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer Section -->
+    <footer class="bg-dark text-white py-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <h5>Quick Links</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="{% url 'home' %}" class="text-white">Home</a></li>
+                        <li><a href="{% url 'signup' %}" class="text-white">Sign Up</a></li>
+                        <li><a href="{% url 'login' %}" class="text-white">Login</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h5>Contact Us</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="mailto:info@platform.com" class="text-white">info@platform.com</a></li>
+                        <li><a href="tel:+123456789" class="text-white">+123 456 789</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4 text-center">
+                    <p>&copy; 2025 IQVerse. All Rights Reserved.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    {% else %}
+        <div class="container dashboard-container">
+            <!-- Welcome Card -->
+            <div class="card welcome-card text-center p-4">
+                <div class="card-body">
+                    <i class="bi bi-person-circle welcome-icon"></i>
+                    <h3 class="card-title mt-3">Welcome, {{ user.username }}!</h3>
+                    <p class="card-text text-muted">
+                        You are logged in as
+                        <span class="fw-bold">
+                            {% if user.groups.all.0.name == 'Admin' %}
+                                Admin
+                            {% elif user.groups.all.0.name == 'Teacher' %}
+                                Teacher
+                            {% elif user.groups.all.0.name == 'Student' %}
+                                Student
+                            {% else %}
+                                User
+                            {% endif %}
+                        </span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Role-Specific Content -->
+            <div class="role-specific-section">
+                {% if user.groups.all.0.name == 'Admin' %}
+                    <div class="alert alert-primary alert-custom text-center" role="alert">
+                        <i class="bi bi-tools"></i> Access your <a href="{% url 'admin_dashboard' %}" class="dashboard-link">Admin Dashboard</a>
+                    </div>
+                {% elif user.groups.all.0.name == 'Teacher' %}
+                    <div class="alert alert-success alert-custom text-center" role="alert">
+                        <i class="bi bi-book"></i> Access your <a href="{% url 'teacher_dashboard' %}" class="dashboard-link">Teacher Dashboard</a>
+                    </div>
+                {% elif user.groups.all.0.name == 'Student' %}
+                    <div class="alert alert-info alert-custom text-center" role="alert">
+                        <i class="bi bi-mortarboard"></i> Access your <a href="{% url 'student_dashboard' %}" class="dashboard-link">Student Dashboard</a>
+                    </div>
+                {% else %}
+                    <div class="alert-custom text-center" role="alert" style="color: black">
+                        <i class="bi bi-question-circle"></i> No specific role assigned. Please contact the administrator.
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Logout Button -->
+            <div class="text-center mt-4">
+                <a href="{% url 'logout' %}" class="btn btn-danger">
+                    <i class="bi bi-box-arrow-right"></i> Logout
+                </a>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

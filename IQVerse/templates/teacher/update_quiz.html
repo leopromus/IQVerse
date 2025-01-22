@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% load custom_filters %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+
+<div class="container mt-5 d-flex flex-column align-items-center">
+    <h2 class="text-center mb-4">Update Quiz</h2>
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4>Quiz Details</h4>
+            </div>
+            <div class="card-body">
+                <!-- Displaying Form Fields -->
+                <div class="mb-3">
+                    <label for="id_title" class="form-label">Quiz Title</label>
+                    {{ form.title|add_class:"form-control" }}
+                </div>
+
+                <div class="mb-3">
+                    <label for="id_description" class="form-label">Description</label>
+                    {{ form.description|add_class:"form-control" }}
+                </div>
+
+                <div class="mb-3">
+                    <label for="id_time_limit" class="form-label">Time Limit (in minutes)</label>
+                    {{ form.time_limit|add_class:"form-control" }}
+                </div>
+                
+                <!-- Add a Submit button -->
+                <div class="d-flex justify-content-between gap-3">
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-pencil-square"></i> Update Quiz
+                    </button>
+                    <a href="{% url 'manage_quizzes' %}" class="btn btn-danger">
+                        <i class="bi bi-arrow-left-circle"></i> Cancel
+                    </a>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
