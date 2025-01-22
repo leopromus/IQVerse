@@ -144,27 +144,38 @@ class SettingsForm(forms.ModelForm):
         model = Settings
         fields = ['site_name', 'email', 'description', 'contact_number', 'logo', 'facebook_url', 'twitter_url', 'instagram_url']
 
+
 class ExamForm(forms.ModelForm):
     class Meta:
         model = Quiz
-        fields = ['title', 'description', 'time_limit', 'questions']
+        fields = ['title', 'description', 'time_limit', 'questions', 'guidelines']
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Quiz Title'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Enter Quiz Description'}),
             'time_limit': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Time Limit in Minutes'}),
             'questions': forms.SelectMultiple(attrs={'class': 'form-control'}),
+            'guidelines': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Enter Guidelines for the Quiz (Separate each guideline with a newline)'}),
         }
         labels = {
             'title': 'Quiz Title',
             'description': 'Description',
             'time_limit': 'Time Limit (Minutes)',
             'questions': 'Select Questions',
+            'guidelines': 'Guidelines',
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Dynamically set the queryset for the questions field
         self.fields['questions'].queryset = Question.objects.all()
+
+    def clean_guidelines(self):
+        # Clean the guidelines and convert them to a bullet-point list
+        guidelines = self.cleaned_data.get('guidelines')
+        # Split by newline and strip whitespace from each line
+        guidelines_list = [line.strip() for line in guidelines.split('\n') if line.strip()]
+        return guidelines_list
+
 
 
 class AssignExamForm(forms.ModelForm):
