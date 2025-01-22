@@ -14,6 +14,25 @@
         body {
             background-color: #f9fafc;
         }
+        .sidebar {
+            height: 100vh;
+            background-color: #343a40;
+            color: white;
+            position: fixed;
+            top: 0;
+            left: 0;
+            overflow-y: auto;
+        }
+        .sidebar .nav-link {
+            color: white;
+        }
+        .sidebar .nav-link.active {
+            background-color: #007bff;
+        }
+        .content {
+            margin-left: 250px;
+            padding: 20px;
+        }
         .card-custom {
             background-color: #ffffff;
             border-radius: 8px;
@@ -22,17 +41,6 @@
         }
         .card-custom:hover {
             transform: translateY(-5px);
-        }
-        .btn-custom {
-            background-color: #007bff;
-            color: white;
-        }
-        .btn-custom:hover {
-            background-color: #0056b3;
-        }
-        .dashboard-header {
-            text-align: center;
-            margin-bottom: 30px;
         }
         .icon-large {
             font-size: 2.5rem;
@@ -44,34 +52,32 @@
     </style>
 </head>
 <body>
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <div class="container">
-            <a class="navbar-brand" href="#">
-                <i class="bi bi-book"></i> Student Dashboard
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link active" href="#"><i class="bi bi-house-door"></i> Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'profile' %}"><i class="bi bi-person"></i> Profile</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'logout' %}"><i class="bi bi-box-arrow-right"></i> Logout</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
 
-    <!-- Dashboard Content -->
-    <div class="container mt-5">
-        <div class="dashboard-header">
+    <!-- Sidebar -->
+    <div class="sidebar d-flex flex-column p-3">
+        <h4 class="text-center mb-4"><i class="bi bi-book"></i> Student Dashboard</h4>
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link active" href="#"><i class="bi bi-house-door"></i> Home</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'profile' %}"><i class="bi bi-person"></i> Profile</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'view_marks' %}"><i class="bi bi-clipboard-data"></i> View Marks</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'exam_guidelines' %}"><i class="bi bi-info-circle"></i> Exam Guidelines</a>
+            </li>
+            <li class="nav-item mt-auto">
+                <a class="nav-link text-danger" href="{% url 'logout' %}"><i class="bi bi-box-arrow-right"></i> Logout</a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content px-5">
+        <div class="dashboard-header text-center">
             <h2>Welcome, {{ student.user.username }}!</h2>
             <p>Your personalized dashboard overview.</p>
         </div>
@@ -111,29 +117,27 @@
         <!-- Actions Section -->
         <div class="actions mt-4 text-center">
             <h4>Quick Actions</h4>
-           {% if courses %}
-    <!-- Loop through each available course -->
-    {% for course in courses %}
-        <a href="{% url 'take_exam' course_id=course.id %}" class="btn btn-outline-secondary">Take Exam for {{ course.name }}</a>
-    {% endfor %}
-{% else %}
-    <p>No available courses to take the exam.</p>
-{% endif %}
-
+            {% if courses %}
+                {% for course in courses %}
+                    <a href="{% url 'take_exam' course_id=course.id %}" class="btn btn-outline-secondary">Take Exam for {{ course.name }}</a>
+                {% endfor %}
+            {% else %}
+                <p>No available courses to take the exam.</p>
+            {% endif %}
             <a href="{% url 'view_marks' %}" class="btn btn-outline-secondary"><i class="bi bi-clipboard-data"></i> View Marks</a>
             <a href="{% url 'exam_guidelines' %}" class="btn btn-outline-success"><i class="bi bi-info-circle"></i> Exam Guidelines</a>
         </div>
-    </div>
 
-    <!-- Exam Rules Section -->
-    <div class="container mt-5">
-        <h4>Exam Rules</h4>
-        <ul>
-            <li>Each question is MCQ with four options and one correct answer.</li>
-            <li>You can attempt exams as many times as you want.</li>
-            <li>Results for each attempt will be displayed in your dashboard.</li>
-            <li>Stay focused and ensure a stable internet connection during exams.</li>
-        </ul>
+        <!-- Exam Rules Section -->
+        <div class="mt-5">
+            <h4>Exam Rules</h4>
+            <ul>
+                <li>Each question is MCQ with four options and one correct answer.</li>
+                <li>You can attempt exams as many times as you want.</li>
+                <li>Results for each attempt will be displayed in your dashboard.</li>
+                <li>Stay focused and ensure a stable internet connection during exams.</li>
+            </ul>
+        </div>
     </div>
 
     <!-- Footer -->
