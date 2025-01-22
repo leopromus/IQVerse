@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Question{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="form-container bg-white p-4 rounded shadow-sm">
+        <h2 class="text-center mb-4">Add Question</h2>
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <!-- Course Selection -->
+            <div class="mb-3">
+                <label class="form-label" for="course">Course:</label>
+                <select class="form-select" id="course" name="course" required>
+                    {% for course in courses %}
+                        <option value="{{ course.id }}">{{ course.title }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Question Text Field -->
+            <div class="mb-3">
+                <label class="form-label" for="text">Question Text:</label>
+                <input type="text" class="form-control" id="text" name="text" required>
+            </div>
+
+            <!-- Correct Answer Field -->
+            <div class="mb-3">
+                <label class="form-label" for="correct_answer">Correct Answer:</label>
+                <input type="text" class="form-control" id="correct_answer" name="correct_answer" required>
+            </div>
+
+            <!-- Marks Field -->
+            <div class="mb-3">
+                <label class="form-label" for="marks">Marks:</label>
+                <input type="number" class="form-control" id="marks" name="marks" required>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn btn-primary w-100">
+                <i class="bi bi-check-circle"></i> Add Question
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
