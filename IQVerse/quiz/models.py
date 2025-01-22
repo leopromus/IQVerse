@@ -51,10 +51,12 @@ class Student(models.Model):
 
 
 # Quiz Model
+
 class Quiz(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField()
     time_limit = models.IntegerField()  # Time in minutes
+    guidelines = models.TextField(blank=True, null=True)  # New field for quiz guidelines
     created_at = models.DateTimeField(auto_now=True)
     updated_at = models.DateTimeField(auto_now=True)
     questions = models.ManyToManyField('Question', related_name='quizzes')  # Relate Quiz to multiple questions
