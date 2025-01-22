@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Teacher{% endblock %}
+
+{% block content %}
+    <div class="container mt-5">
+        <div class="content-header">
+            <h2 class="text-primary">Manage Teacher</h2>
+            <p class="text-muted">Update teacher's details or delete the teacher.</p>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card shadow-lg p-4">
+                    <form method="POST">
+                        {% csrf_token %}
+
+                        <!-- Username (Read-only) -->
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Username</label>
+                            <input type="text" class="form-control" id="username" name="username" value="{{ teacher.username }}" readonly>
+                        </div>
+
+                        <!-- Subject -->
+                        <div class="mb-3">
+                            <label for="subject" class="form-label">Subject</label>
+                            <input type="text" class="form-control" id="subject" name="subject" value="{{ teacher.subject }}">
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="d-flex justify-content-between">
+                            <button type="submit" class="btn btn-warning">
+                                <i class="bi bi-pencil-square"></i> Update
+                            </button>
+                            <a href="{% url 'admin_dashboard' %}" class="btn btn-danger">
+                                <i class="bi bi-x-circle"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
