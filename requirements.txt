@@ -1,0 +1,13 @@
+django-admin-list==1.0.0
+django-admin-modify==1.0.0
+django-admin-urls==1.0.0
+django-cache==1.0.0
+django-crispy-forms==1.14.0
+django-custom-filters==1.0.0
+django-custom-tags==1.0.0
+django-i18n==1.0.0
+django-l10n==1.0.0
+django-log==1.0.0
+djangorestframework==3.14.0
+django-static==1.0.0
+django-tz==1.0.0
