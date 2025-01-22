@@ -1,0 +1,13 @@
+<!-- assign_exam.html -->
+{% extends 'base.html' %}
+
+{% block title %}Assign Exam{% endblock %}
+
+{% block content %}
+<h2>Assign Exam to Student</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Assign Exam</button>
+</form>
+{% endblock %}
