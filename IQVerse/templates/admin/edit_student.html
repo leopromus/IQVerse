@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Student{% endblock %}
+
+{% block content %}
+<div class="container mt-5 d-flex flex-column align-items-center">
+    <h2>Edit Student Details: {{ student.user.username }}</h2>
+    <hr>
+
+    <!-- Display Success or Error Messages -->
+    {% if messages %}
+        <div class="alert alert-success">
+            {% for message in messages %}
+                <p>{{ message }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <div class="mb-3">
+        <label for="user" class="form-label">Student</label>
+        <input type="text" class="form-control" value="{{ student.user.username }}" disabled>
+    </div>
+
+    <div class="mb-3">
+        <label for="grade" class="form-label">Grade</label>
+        <input type="text" class="form-control" name="grade" value="{{ form.grade.value|default:student.grade }}">
+    </div>
+
+    <div class="mb-3">
+        <label for="date_of_birth" class="form-label">Date of Birth</label>
+        <input type="date" class="form-control" name="date_of_birth" value="{{ form.date_of_birth.value|default:student.date_of_birth }}">
+    </div>
+
+    <div class="mb-3">
+        <label for="phone_number" class="form-label">Phone Number</label>
+        <input type="text" class="form-control" name="phone_number" value="{{ form.phone_number.value|default:student.phone_number }}">
+    </div>
+
+    <div class="mb-3">
+        <label for="parent_contact" class="form-label">Parent's Contact</label>
+        <input type="text" class="form-control" name="parent_contact" value="{{ form.parent_contact.value|default:student.parent_contact }}">
+    </div>
+
+    <div class="mb-3">
+        <label for="profile_image" class="form-label">Profile Image</label>
+        {{ form.profile_image }}  <!-- File inputs don't use value attribute -->
+    </div>
+
+    <div class="mb-3">
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+        <a href="{% url 'manage_students' %}" class="btn btn-secondary">Cancel</a>
+    </div>
+</form>
+
+</div>
+{% endblock %}
