@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block content %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+
+<div class="container mt-5 d-flex flex-column align-items-center">
+    <!-- Page Header -->
+    <div class="text-center mb-4">
+        <h2 class="text-primary fw-bold">Add Question</h2>
+        <p class="text-muted">Fill out the form below to add a new question to the quiz.</p>
+    </div>
+
+    <!-- Form Container -->
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <form method="post" novalidate>
+                {% csrf_token %}
+                <!-- Form Fields -->
+                {{ form.as_p }}
+
+                <!-- Submit Button -->
+                <div class="text-end mt-3 d-flex justify-around gap-5">
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-save me-2"></i> Save Question
+                    </button>
+                     <a href="{% url 'manage_questions' %}" class="btn btn-danger">
+                        <i class="bi bi-arrow-left-circle"></i> Cancel
+          </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

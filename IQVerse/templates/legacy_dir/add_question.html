@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Question{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+
+    <!-- Heading -->
+    <h2 class="text-center mb-4 text-primary">
+        <i class="bi bi-question-circle"></i> Add New Question
+    </h2>
+
+    <!-- Form to Add Question -->
+    <form method="POST">
+        {% csrf_token %}
+
+        <!-- Display Form Fields -->
+        <div class="card p-4 shadow-sm mb-4">
+            {{ form.as_p }}
+        </div>
+
+        <!-- Submit Button -->
+        <div class="d-flex justify-content-center">
+            <button type="submit" class="btn btn-success btn-lg">
+                <i class="bi bi-plus-circle"></i> Add Question
+            </button>
+        </div>
+    </form>
+
+    <!-- Back to Questions List -->
+    <div class="text-center mt-3">
+        <a href="{% url 'view_questions' %}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left-circle"></i> Back to Questions List
+        </a>
+    </div>
+
+</div>
+{% endblock %}
