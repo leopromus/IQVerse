@@ -1,48 +1,214 @@
 {% extends 'base.html' %}
 
-{% block title %}Home - Welcome to the Platform{% endblock %}
-
 {% block content %}
-    <!-- Hero Section -->
-    <div class="container-fluid py-5 bg-primary-custom text-white text-center">
-        <h1 class="display-4 mb-4">Welcome to the Education Platform</h1>
-        <p class="lead mb-4">A platform where teachers, students, and administrators can interact and grow together.</p>
-
-        <div class="d-flex justify-content-center gap-3">
-            <a href="{% url 'signup' %}" class="btn btn-light btn-lg">Sign Up</a>
-            <a href="{% url 'login' %}" class="btn btn-outline-light btn-lg">Login</a>
-        </div>
-    </div>
-
-    <!-- Features Section -->
-    <div class="container my-5">
-        <div class="row text-center">
-            <div class="col-md-4">
-                <h4><i class="bi bi-mortarboard"></i> For Teachers</h4>
-                <p>Manage courses, approve students, and track progress.</p>
-            </div>
-            <div class="col-md-4">
-                <h4><i class="bi bi-person"></i> For Students</h4>
-                <p>Enroll in courses, track progress, and interact with teachers.</p>
-            </div>
-            <div class="col-md-4">
-                <h4><i class="bi bi-gear"></i> For Admin</h4>
-                <p>Manage teachers, students, and courses with ease.</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Call to Action Section -->
-    <div class="text-center py-5 bg-light">
-        <h2 class="mb-3">Join us today and be part of the educational revolution!</h2>
-        <a href="{% url 'signup' %}" class="btn btn-primary btn-lg">Get Started</a>
-    </div>
-
-    <!-- Logout Section (if the user is logged in) -->
+<div class="home-container">
     {% if user.is_authenticated %}
-        <div class="text-center mt-4">
-            <h4>Welcome, {{ user.username }}!</h4>
-            <a href="{% url 'logout' %}" class="btn btn-danger">Logout</a>
-        </div>
+        <h1>Welcome, {{ user.username }}!</h1>
+
+        {% if user.role == 'teacher' %}
+            <section class="dashboard">
+                <h2>Your Dashboard</h2>
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Teacher Info</h5>
+                        <p><strong>Subject:</strong> {{ user.teacher.subject }}</p>
+                        <p><strong>Experience:</strong> {{ user.teacher.experience }} years</p>
+                    </div>
+                </div>
+
+                <h3>Your Courses</h3>
+                <div class="row g-4">
+                    {% for course in user.teacher.courses.all %}
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ course.title }}</h5>
+                                <p class="card-text">
+                                    <strong>Category:</strong> {{ course.category }}<br>
+                                    <strong>Difficulty Level:</strong> {{ course.difficulty_level }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p>No courses assigned yet.</p>
+                    {% endfor %}
+                </div>
+            </section>
+
+        {% elif user.role == 'student' %}
+            <section class="dashboard">
+                <h2>Your Dashboard</h2>
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Student Info</h5>
+                        <p><strong>Grade:</strong> {{ user.student.grade }}</p>
+                        <p><strong>Date of Birth:</strong> {{ user.student.date_of_birth }}</p>
+                        <p><strong>Phone Number:</strong> {{ user.student.phone_number }}</p>
+                    </div>
+                </div>
+
+                <h3>Enrolled Courses</h3>
+                <div class="row g-4">
+                    {% for course in user.student.courses.all %}
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ course.title }}</h5>
+                                <p class="card-text">
+                                    <strong>Teacher:</strong> {{ course.teacher.user.username }}<br>
+                                    <strong>Category:</strong> {{ course.category }}<br>
+                                    <strong>Difficulty Level:</strong> {{ course.difficulty_level }}<br>
+                                    <strong>Duration:</strong> {{ course.duration }} weeks
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p>No courses enrolled yet.</p>
+                    {% endfor %}
+                </div>
+
+                <h3>Marks and Feedback</h3>
+                <div class="row g-4">
+                    {% for mark in user.student.marks.all %}
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ mark.course.title }}</h5>
+                                <p class="card-text">
+                                    <strong>Score:</strong> {{ mark.score }}<br>
+                                    <strong>Grade:</strong> {{ mark.grade }}<br>
+                                    <strong>Feedback:</strong> {{ mark.feedback|default:"No feedback provided." }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p>No marks available yet.</p>
+                    {% endfor %}
+                </div>
+
+                <h3>Leaderboard</h3>
+                <ul>
+                    {% for leaderboard_entry in user.leaderboard.all %}
+                    <li>
+                        <strong>{{ leaderboard_entry.quiz.title }}</strong> - {{ leaderboard_entry.score }} points
+                    </li>
+                    {% empty %}
+                    <li>No leaderboard entries yet.</li>
+                    {% endfor %}
+                </ul>
+            </section>
+
+        {% elif user.role == 'admin' %}
+            <section class="dashboard">
+                <h2>Admin Dashboard</h2>
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">User Stats</h5>
+                        <p><strong>Total Users:</strong> {{ total_users }}</p>
+                        <p><strong>Total Teachers:</strong> {{ total_teachers }}</p>
+                        <p><strong>Total Students:</strong> {{ total_students }}</p>
+                    </div>
+                </div>
+
+                <h3>Teacher Applications</h3>
+                <ul>
+                    {% for application in teacher_applications %}
+                    <li>
+                        <strong>{{ application.full_name }}</strong> - {{ application.email }} -
+                        {% if application.approved %}
+                        <span class="badge bg-success">Approved</span>
+                        {% else %}
+                        <span class="badge bg-warning text-dark">Pending</span>
+                        {% endif %}
+                    </li>
+                    {% empty %}
+                    <li>No applications submitted.</li>
+                    {% endfor %}
+                </ul>
+            </section>
+        {% endif %}
+
+    {% else %}
+        <!-- Landing Page for Unauthenticated Users -->
+
+        <section class="hero-section text-center py-5 bg-light">
+            <div class="container d-flex flex-column align-items-center">
+                <h1 class="display-4 fw-bold">Welcome to the Online Exam System</h1>
+                <p class="lead text-muted">Your one-stop solution for hassle-free online assessments.</p>
+                <div class="d-flex justify-content-center mt-4 gap-3">
+                    <a href="{% url 'signup' %}" class="btn btn-primary btn-lg">Get Started Now</a>
+                    <a href="{% url 'login' %}" class="btn btn-outline-secondary btn-lg">Login</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="features-section py-5">
+            <div class="container">
+                <div class="row text-center g-4">
+                    <div class="col-md-4">
+                        <div class="d-flex flex-column align-items-center">
+                            <ion-icon name="book-outline" class="display-4 text-primary"></ion-icon>
+                            <h3 class="mt-3">Comprehensive Courses</h3>
+                            <p class="text-muted">Access a wide range of courses and materials tailored for your learning needs.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="d-flex flex-column align-items-center">
+                            <ion-icon name="bar-chart-outline" class="display-4 text-primary"></ion-icon>
+                            <h3 class="mt-3">Real-Time Results</h3>
+                            <p class="text-muted">Instant feedback and detailed analytics for every exam attempt.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="d-flex flex-column align-items-center">
+                            <ion-icon name="shield-checkmark-outline" class="display-4 text-primary"></ion-icon>
+                            <h3 class="mt-3">Secure & Reliable</h3>
+                            <p class="text-muted">Conduct exams with confidence in a safe and secure environment.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="testimonials-section bg-light py-5 d-flex flex-column align-items-center">
+            <div class="container text-center d-flex flex-column align-items-center">
+                <h2 class="fw-bold">What Our Users Say</h2>
+                <div class="row mt-4 g-4">
+                    <div class="col-md-4">
+                        <div class="card shadow-sm p-4 h-100">
+                            <p>"The Online Exam System has revolutionized the way I teach. It's user-friendly and efficient!"</p>
+                            <strong>- Jane, Teacher</strong>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card shadow-sm p-4 h-100">
+                            <p>"I love how easy it is to track my progress. The instant feedback helps me improve quickly."</p>
+                            <strong>- Mark, Student</strong>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card shadow-sm p-4 h-100">
+                            <p>"Managing exams and analyzing results has never been this simple and secure."</p>
+                            <strong>- Admin, Education Institute</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="cta-section text-center py-5 bg-light-blue text-dark">
+            <div class="container d-flex flex-column align-items-center">
+                <h2 class="fw-bold">Get Started Today!</h2>
+                <p>Join thousands of users who trust the Online Exam System for seamless assessments.</p>
+                <div class="d-flex justify-content-center gap-3 mt-4">
+                    <a href="{% url 'signup' %}" class="btn btn-dark btn-lg">Sign Up</a>
+                    <a href="#" class="btn btn-outline-dark btn-lg">Learn More</a>
+                </div>
+            </div>
+        </section>
     {% endif %}
+</div>
 {% endblock %}
