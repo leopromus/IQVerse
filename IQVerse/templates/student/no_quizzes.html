@@ -1,0 +1,8 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>No Quizzes Available for {{ course.name }}</h2>
+  <p>It seems that there are no quizzes available for this course. Please check back later or contact your instructor for more details.</p>
+
+  <p><a href="{% url 'student_dashboard' %}">Go Back to Dashboard</a></p>
+{% endblock %}
