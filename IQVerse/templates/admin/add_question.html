@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Question to {{ exam.title }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5  d-flex flex-column align-items-center">
+    <h1 class="mb-4 text-center">Add Question to "{{ exam.title }}"</h1>
+
+    <!-- Form to add a new question -->
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <form method="POST" novalidate>
+                {% csrf_token %}
+                {{ form.as_p }}
+
+                <!-- Submit and Cancel Buttons -->
+                <div class="d-flex justify-content-between mt-3">
+                    <button type="submit" name="add_question" class="btn btn-success">
+                        <i class="fas fa-plus"></i> Add Question
+                    </button>
+                    <a href="{% url 'manage_questions' exam.id %}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
