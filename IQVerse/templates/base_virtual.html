@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Online Exam System{% endblock %}</title>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/ionicons@5.5.4/dist/ionicons/ionicons.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- CSS Stylesheet -->
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+    <!-- Navigation Bar -->
+   <nav class="navbar navbar-expand-lg bg-primary py-3">
+    <div class="container">
+        <!-- Brand -->
+        <a class="navbar-brand text-dark fw-bold d-flex align-items-center" href="{% url 'home' %}">
+            <i class="bi bi-mortarboard-fill me-2"></i>Online Exam System
+        </a>
+
+        <!-- Toggler -->
+        <button class="navbar-toggler text-white" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- Navbar Links -->
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link text-dark d-flex align-items-center" href="{% url 'logout' %}">
+                            <i class="bi bi-box-arrow-right me-2"></i>Logout
+                        </a>
+                    </li>
+                    {% if user.role == 'admin' %}
+                        <li class="nav-item">
+                            <a class="nav-link text-white d-flex align-items-center" href="{% url 'admin_dashboard' %}">
+                                <i class="bi bi-speedometer2 me-2"></i>Admin Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white d-flex align-items-center" href="{% url 'manage_teachers' %}">
+                                <i class="bi bi-people-fill me-2"></i>Manage Teachers
+                            </a>
+                        </li>
+                    {% elif user.role == 'teacher' %}
+                        <li class="nav-item">
+                            <a class="nav-link text-white d-flex align-items-center" href="{% url 'teacher_dashboard' %}">
+                                <i class="bi bi-person-badge-fill me-2"></i>Teacher Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white d-flex align-items-center" href="{% url 'add_course' %}">
+                                <i class="bi bi-plus-circle-fill me-2"></i>Add Course
+                            </a>
+                        </li>
+                    {% elif user.role == 'student' %}
+                        <li class="nav-item">
+                            <a class="nav-link text-white d-flex align-items-center" href="{% url 'student_dashboard' %}">
+                                <i class="bi bi-person-fill me-2"></i>Student Dashboard
+                            </a>
+                        </li>
+                    {% endif %}
+                {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link text-dark d-flex align-items-center" href="{% url 'signup' %}">
+                            <i class="bi bi-person-plus-fill me-2"></i>Sign Up
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-dark d-flex align-items-center" href="{% url 'login' %}">
+                            <i class="bi bi-box-arrow-in-right me-2"></i>Login
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section text-center py-5 bg-light">
+        <div class="container d-flex flex-column align-items-center">
+            <h1 class="display-4 fw-bold">Welcome to the Online Exam System</h1>
+            <p class="lead">Your one-stop solution for hassle-free online assessments.</p>
+            {% if not user.is_authenticated %}
+            <div class="d-flex justify-content-center mt-3">
+                <a href="{% url 'signup' %}" class="btn btn-primary btn-lg me-2">Get Started Now</a>
+                <a href="{% url 'login' %}" class="btn btn-outline-secondary btn-lg">Login</a>
+            </div>
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features-section py-5">
+        <div class="container">
+            <div class="row text-center g-4">
+                <div class="col-md-4">
+                    <div class="d-flex flex-column align-items-center">
+                        <ion-icon name="book-outline" class="display-4 text-primary"></ion-icon>
+                        <h3 class="mt-3">Comprehensive Courses</h3>
+                        <p class="text-muted">Access a wide range of courses and materials tailored for your learning needs.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="d-flex flex-column align-items-center">
+                        <ion-icon name="bar-chart-outline" class="display-4 text-primary"></ion-icon>
+                        <h3 class="mt-3">Real-Time Results</h3>
+                        <p class="text-muted">Instant feedback and detailed analytics for every exam attempt.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="d-flex flex-column align-items-center">
+                        <ion-icon name="shield-checkmark-outline" class="display-4 text-primary"></ion-icon>
+                        <h3 class="mt-3">Secure & Reliable</h3>
+                        <p class="text-muted">Conduct exams with confidence in a safe and secure environment.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="testimonials-section bg-light py-5">
+        <div class="container text-center d-flex flex-column align-items-center">
+            <h2 class="fw-bold">What Our Users Say</h2>
+            <div class="row mt-4 g-4">
+                <div class="col-md-4">
+                    <div class="card shadow-sm p-3">
+                        <p>"The Online Exam System has revolutionized the way I teach. It's user-friendly and efficient!"</p>
+                        <strong>- Jane, Teacher</strong>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card shadow-sm p-3">
+                        <p>"I love how easy it is to track my progress. The instant feedback helps me improve quickly."</p>
+                        <strong>- Mark, Student</strong>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card shadow-sm p-3">
+                        <p>"Managing exams and analyzing results has never been this simple and secure."</p>
+                        <strong>- Admin, Education Institute</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Call to Action Section -->
+    <section class="cta-section text-center py-5 bg-primary text-dark mb-5">
+        <div class="container d-flex flex-column align-items-center">
+            <h2 class="fw-bold">Get Started Today!</h2>
+            <p>Join thousands of users who trust the Online Exam System for seamless assessments.</p>
+             <a href="{% url 'signup' %}" class="btn btn-primary btn-lg me-2 my-5">signup</a>
+             <a href="#" class="btn btn-outline-dark btn-lg">Learn More</a>
+        </div>
+    </section>
+
+    <!-- Footer Section -->
+    <footer class="text-center py-4 bg-dark text-white">
+        <p>&copy; 2025 Online Exam System. All Rights Reserved.</p>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'js/scripts.js' %}"></script>
+</body>
+</html>
