@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
-
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -84,8 +84,13 @@ WSGI_APPLICATION = 'IQVerse.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'quiz',  # Your MySQL database name
+        'USER': 'root',  # MySQL username (default is 'root')
+        'PASSWORD': 'Iwacu@2o19',  # MySQL password
+        'HOST': 'localhost',  # If using MySQL Workbench, keep it 'localhost'
+        'PORT': '3306',  # Default MySQL port
+
     }
 }
 
@@ -120,6 +125,17 @@ LOGIN_URL = '/login/'
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # Keep the session alive after browser closes if 'Remember Me' is checked
 SESSION_COOKIE_AGE = 1209600  # 2 weeks in seconds (if Remember Me is enabled)
 
+# settings.py
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'leopromus@gmail.com'
+EMAIL_HOST_PASSWORD = 'csbb pcfa fwvg eoax'
+DEFAULT_FROM_EMAIL = 'leopromus@gmail.com'
+
+
 
 
 # Internationalization
@@ -141,7 +157,16 @@ STATIC_URL = 'static/'
 
 STATICFILES_DIRS = [BASE_DIR / 'static']
 
+
+# settings.py
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+AUTH_USER_MODEL = 'quiz.User'
+
