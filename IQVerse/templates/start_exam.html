@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+
+{% block title %}Take Exam - {{ quiz.name }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4 d-flex flex-column align-items-center">
+  <h2 class="text-center">{{ quiz.name }}</h2>
+  <p class="text-center text-muted">{{ quiz.description }}</p>
+
+  <!-- Display any error messages -->
+  {% if messages %}
+      <div class="alert alert-danger">
+          <ul class="mb-0">
+              {% for message in messages %}
+                  <li>{{ message }}</li>
+              {% endfor %}
+          </ul>
+      </div>
+  {% endif %}
+
+  <!-- Timer and Progress Bar -->
+  <div class="mb-3 w-100">
+    <label for="timer" class="form-label">Time Remaining: <span id="timer">{{ quiz.time_limit }} minutes</span></label>
+    <div class="progress">
+      <div id="timeProgress" class="progress-bar" role="progressbar" style="width: 100%;" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+    </div>
+  </div>
+
+  <form method="POST" class="mt-4">
+    {% csrf_token %}
+    {% for question in questions %}
+      <div class="mb-4">
+        <h5 class="fw-bold">{{ forloop.counter }}. {{ question.question_text }}</h5>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="question_{{ question.id }}" value="1" id="question_{{ question.id }}_option1">
+          <label class="form-check-label" for="question_{{ question.id }}_option1">
+            {{ question.option1 }}
+          </label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="question_{{ question.id }}" value="2" id="question_{{ question.id }}_option2">
+          <label class="form-check-label" for="question_{{ question.id }}_option2">
+            {{ question.option2 }}
+          </label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="question_{{ question.id }}" value="3" id="question_{{ question.id }}_option3">
+          <label class="form-check-label" for="question_{{ question.id }}_option3">
+            {{ question.option3 }}
+          </label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="question_{{ question.id }}" value="4" id="question_{{ question.id }}_option4">
+          <label class="form-check-label" for="question_{{ question.id }}_option4">
+            {{ question.option4 }}
+          </label>
+        </div>
+      </div>
+    {% endfor %}
+    <button type="submit" class="btn btn-primary w-100">Submit Quiz</button>
+  </form>
+</div>
+
+<script>
+  // Assuming quiz time limit is in seconds for easier calculation
+  var timeLimitInSeconds = {{ quiz.time_limit }} * 60;
+  var timeLeft = timeLimitInSeconds;
+  var timerElement = document.getElementById("timer");
+  var progressBar = document.getElementById("timeProgress");
+
+  // Update function for the countdown timer and progress bar
+  function updateTimer() {
+    var minutes = Math.floor(timeLeft / 60);
+    var seconds = timeLeft % 60;
+    timerElement.textContent = `${minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
+
+    var percentage = (timeLeft / timeLimitInSeconds) * 100;
+    progressBar.style.width = percentage + "%";
+
+    // Color change based on remaining time
+    if (percentage > 50) {
+      progressBar.classList.remove("bg-warning", "bg-danger");
+      progressBar.classList.add("bg-success");
+    } else if (percentage > 20) {
+      progressBar.classList.remove("bg-success", "bg-danger");
+      progressBar.classList.add("bg-warning");
+    } else {
+      progressBar.classList.remove("bg-success", "bg-warning");
+      progressBar.classList.add("bg-danger");
+    }
+
+    // Decrement time every second
+    if (timeLeft > 0) {
+      timeLeft--;
+    } else {
+      // Automatically submit the quiz when time is up (optional)
+      document.querySelector("form").submit();
+    }
+  }
+
+  // Start the countdown timer
+  setInterval(updateTimer, 1000);
+</script>
+{% endblock %}
