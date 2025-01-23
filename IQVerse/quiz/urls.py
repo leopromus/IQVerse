@@ -106,5 +106,6 @@ urlpatterns = [
 
     path('reset_all_quizzes/', views.reset_all_quizzes, name='reset_all_quizzes'),
     path('reset_quiz/<int:quiz_id>/', views.reset_quiz, name='reset_quiz'),
+    path('testimonials/', views.testimonials_view, name='testimonials'),
 
 ]
