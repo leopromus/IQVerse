@@ -53,7 +53,7 @@ urlpatterns = [
 
     path('exams/', views.manage_exams, name='manage_exams'),
     path('exams/<int:exam_id>/questions/', views.manage_questions, name='manage_questions'),
-    path('exams/<int:exam_id>/add_question/', views.add_question, name='add_question'),
+    path('exams/<int:quiz_id>/add_question/', views.add_question, name='add_question'),
     path('questions/<int:question_id>/edit/', views.edit_question, name='edit_question'),
     path('questions/<int:question_id>/delete/', views.delete_question, name='delete_question'),
     # ... other URL patterns
