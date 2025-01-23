@@ -53,6 +53,7 @@ class Student(models.Model):
 # Quiz Model
 
 class Quiz(models.Model):
+
     title = models.CharField(max_length=255)
     description = models.TextField()
     time_limit = models.IntegerField()  # Time in minutes
