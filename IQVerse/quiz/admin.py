@@ -1,7 +1,7 @@
 from django.contrib import admin
 from .models import (
     Teacher, Student, Course, Question, Marks, TeacherApplication, User,
-    Quiz, Choice, UserQuizAttempt, UserAnswer, Feedback, Leaderboard, Settings, QuizAttemptHistory
+    Quiz, Choice, UserQuizAttempt, UserAnswer, Feedback, Leaderboard, Settings, QuizAttemptHistory, Testimonial
 )
 
 # Register all models using admin.site.register
@@ -20,6 +20,9 @@ admin.site.register(Feedback)
 admin.site.register(Leaderboard)
 admin.site.register(Settings)
 admin.site.register(QuizAttemptHistory)
+admin.site.register(Testimonial)
+
+
 
 
 
