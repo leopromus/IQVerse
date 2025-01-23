@@ -96,26 +96,17 @@ body.collapsed #main-content {
     </li>
 
         <!-- Add this to the sidebar menu in your admin dashboard template -->
-<li class="mb-2">
-    <a href="{% url 'assign_exam' %}" class="d-flex align-items-center text-decoration-none text-light px-3 py-2 rounded hover-effect">
-        <i class="bi bi-pencil-square me-3"></i> <span>Assign Exam to Student</span>
-    </a>
-</li>
+<!--<li class="mb-2">-->
+<!--    <a href="{% url 'assign_exam' %}" class="d-flex align-items-center text-decoration-none text-light px-3 py-2 rounded hover-effect">-->
+<!--        <i class="bi bi-pencil-square me-3"></i> <span>Assign Exam to Student</span>-->
+<!--    </a>-->
+<!--</li>-->
 
-
-
-
-{% for exam in exams %}
-    <li class="mb-2">
-        {% if exam.id %}
-            <a href="{% url 'manage_questions' exam_id=exam.id %}" class="d-flex align-items-center text-decoration-none text-light px-3 py-2 rounded hover-effect">
+        <li class="mb-2">
+            <a href="{% url 'manage_questions' %}" class="d-flex align-items-center text-decoration-none text-light px-3 py-2 rounded hover-effect">
                 <i class="bi bi-question-circle me-3"></i> <span>Questions</span>
             </a>
-        {% else %}
-            <span class="text-muted">No Exam Selected</span>
-        {% endif %}
     </li>
-{% endfor %}
 
 
          <li class="mb-2">
