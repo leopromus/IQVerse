@@ -221,3 +221,21 @@ class QuizAttemptHistory(models.Model):
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
     score = models.IntegerField()
     attempt_date = models.DateTimeField(auto_now_add=True)
+
+
+class Testimonial(models.Model):
+    # The message/content of the testimonial
+    message = models.TextField()
+
+    # Reference to the User model (teacher, student)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="testimonials")
+
+    # Role of the user (Teacher, Student, etc.)
+    # This field is optional and can be derived from the `User` model if you use roles for the users.
+    role = models.CharField(max_length=50, choices=[('teacher', 'Teacher'), ('student', 'Student')])
+
+    # Optional: A date field to store when the testimonial was created
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Testimonial from {self.user.username} ({self.role})"
