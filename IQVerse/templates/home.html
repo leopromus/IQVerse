@@ -13,6 +13,15 @@
                         <h5 class="card-title">Teacher Info</h5>
                         <p><strong>Subject:</strong> {{ user.teacher.subject }}</p>
                         <p><strong>Experience:</strong> {{ user.teacher.experience }} years</p>
+                        <p><strong>Qualification:</strong> {{ user.teacher.qualification }}</p>
+                        <p><strong>Bio:</strong> {{ user.teacher.bio }}</p>
+                        <p><strong>Phone Number:</strong> {{ user.teacher.phone_number }}</p>
+                        <p><strong>Profile Image:</strong></p>
+                        {% if user.teacher.profile_image %}
+                            <img src="{{ user.teacher.profile_image.url }}" alt="Profile Image" class="rounded-circle" width="100" height="100">
+                        {% else %}
+                            <img src="https://via.placeholder.com/100" alt="Profile Image" class="rounded-circle">
+                        {% endif %}
                     </div>
                 </div>
 
@@ -25,7 +34,8 @@
                                 <h5 class="card-title">{{ course.title }}</h5>
                                 <p class="card-text">
                                     <strong>Category:</strong> {{ course.category }}<br>
-                                    <strong>Difficulty Level:</strong> {{ course.difficulty_level }}
+                                    <strong>Difficulty Level:</strong> {{ course.difficulty_level }}<br>
+                                    <strong>Duration:</strong> {{ course.duration }} weeks
                                 </p>
                             </div>
                         </div>
@@ -38,67 +48,21 @@
 
         {% elif user.role == 'student' %}
             <section class="dashboard">
-                <h2>Your Dashboard</h2>
                 <div class="card mb-4">
                     <div class="card-body">
-                        <h5 class="card-title">Student Info</h5>
+                        <h2 class="card-title"><i><u>Personal Information</u></i></h2>
                         <p><strong>Grade:</strong> {{ user.student.grade }}</p>
                         <p><strong>Date of Birth:</strong> {{ user.student.date_of_birth }}</p>
                         <p><strong>Phone Number:</strong> {{ user.student.phone_number }}</p>
+                        <p><strong>Parent Contact:</strong> {{ user.student.parent_contact }}</p>
+                        <p><strong>Profile Image:</strong></p>
+                        {% if user.student.profile_image %}
+                            <img src="{{ user.student.profile_image.url }}" alt="Profile Image" class="rounded-circle" width="100" height="100">
+                        {% else %}
+                            <img src="https://via.placeholder.com/100" alt="Profile Image" class="rounded-circle">
+                        {% endif %}
                     </div>
                 </div>
-
-                <h3>Enrolled Courses</h3>
-                <div class="row g-4">
-                    {% for course in user.student.courses.all %}
-                    <div class="col-md-4">
-                        <div class="card">
-                            <div class="card-body">
-                                <h5 class="card-title">{{ course.title }}</h5>
-                                <p class="card-text">
-                                    <strong>Teacher:</strong> {{ course.teacher.user.username }}<br>
-                                    <strong>Category:</strong> {{ course.category }}<br>
-                                    <strong>Difficulty Level:</strong> {{ course.difficulty_level }}<br>
-                                    <strong>Duration:</strong> {{ course.duration }} weeks
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    {% empty %}
-                    <p>No courses enrolled yet.</p>
-                    {% endfor %}
-                </div>
-
-                <h3>Marks and Feedback</h3>
-                <div class="row g-4">
-                    {% for mark in user.student.marks.all %}
-                    <div class="col-md-4">
-                        <div class="card">
-                            <div class="card-body">
-                                <h5 class="card-title">{{ mark.course.title }}</h5>
-                                <p class="card-text">
-                                    <strong>Score:</strong> {{ mark.score }}<br>
-                                    <strong>Grade:</strong> {{ mark.grade }}<br>
-                                    <strong>Feedback:</strong> {{ mark.feedback|default:"No feedback provided." }}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    {% empty %}
-                    <p>No marks available yet.</p>
-                    {% endfor %}
-                </div>
-
-                <h3>Leaderboard</h3>
-                <ul>
-                    {% for leaderboard_entry in user.leaderboard.all %}
-                    <li>
-                        <strong>{{ leaderboard_entry.quiz.title }}</strong> - {{ leaderboard_entry.score }} points
-                    </li>
-                    {% empty %}
-                    <li>No leaderboard entries yet.</li>
-                    {% endfor %}
-                </ul>
             </section>
 
         {% elif user.role == 'admin' %}
@@ -113,21 +77,38 @@
                     </div>
                 </div>
 
-                <h3>Teacher Applications</h3>
-                <ul>
-                    {% for application in teacher_applications %}
-                    <li>
-                        <strong>{{ application.full_name }}</strong> - {{ application.email }} -
-                        {% if application.approved %}
-                        <span class="badge bg-success">Approved</span>
-                        {% else %}
-                        <span class="badge bg-warning text-dark">Pending</span>
-                        {% endif %}
-                    </li>
-                    {% empty %}
-                    <li>No applications submitted.</li>
-                    {% endfor %}
-                </ul>
+                <h3>Manage Users</h3>
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Teachers</h5>
+                                <ul>
+                                    {% for teacher in teachers %}
+                                    <li>{{ teacher.user.username }} - {{ teacher.subject }}</li>
+                                    {% empty %}
+                                    <li>No teachers available</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Students</h5>
+                                <ul>
+                                    {% for student in students %}
+                                    <li>{{ student.user.username }} - Grade: {{ student.grade }}</li>
+                                    {% empty %}
+                                    <li>No students available</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </section>
         {% endif %}
 
@@ -136,7 +117,7 @@
 
         <section class="hero-section text-center py-5 bg-light">
             <div class="container d-flex flex-column align-items-center">
-                <h1 class="display-4 fw-bold">Welcome to the Online Exam System</h1>
+                <h1 class="display-4 fw-bold">Welcome to the IQverse </h1>
                 <p class="lead text-muted">Your one-stop solution for hassle-free online assessments.</p>
                 <div class="d-flex justify-content-center mt-4 gap-3">
                     <a href="{% url 'signup' %}" class="btn btn-primary btn-lg">Get Started Now</a>
@@ -317,7 +298,7 @@
         <section class="cta-section text-center py-5 bg-light-blue text-dark">
             <div class="container d-flex flex-column align-items-center">
                 <h2 class="fw-bold">Get Started Today!</h2>
-                <p>Join thousands of users who trust the Online Exam System for seamless assessments.</p>
+                <p>Join thousands of users who trust the IQverse  for seamless assessments.</p>
                 <div class="d-flex justify-content-center gap-3 mt-4">
                     <a href="{% url 'signup' %}" class="btn btn-dark btn-lg">Sign Up</a>
                     <a href="#" class="btn btn-outline-dark btn-lg">Learn More</a>
