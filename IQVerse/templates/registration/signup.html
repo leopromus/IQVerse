@@ -7,60 +7,143 @@
 <div class="form-container">
     <h2>Create an Account</h2>
 
-    <!-- Form Section -->
-    <form method="POST" class="signup-form">
+    <!-- Display Messages -->
+{% if messages %}
+    <div class="alert alert-danger" role="alert">
+        <p>{{ messages.0 }}</p>
+    </div>
+{% endif %}
+
+
+    <!-- Signup Form -->
+    <form method="POST" class="signup-form" id="signup-form">
         {% csrf_token %}
 
+        <!-- Display Non-Field Errors -->
+        {% if form.non_field_errors %}
+            <div class="error-container">
+                <ul class="error-list">
+                    {% for error in form.non_field_errors %}
+                        <li class="error">{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+
         <!-- Username Field -->
-        <div class="form-group">
+        <div class="form-group {% if form.username.errors %}has-error{% endif %}">
             <label for="{{ form.username.id_for_label }}">Username</label>
             {{ form.username|add_class:"form-control" }}
-        </div>
-
-        <!-- Password Field -->
-        <div class="form-group">
-            <label for="{{ form.password1.id_for_label }}">Password</label>
-            {{ form.password1|add_class:"form-control" }}
-        </div>
-
-        <!-- Confirm Password Field -->
-        <div class="form-group">
-            <label for="{{ form.password2.id_for_label }}">Confirm Password</label>
-            {{ form.password2|add_class:"form-control" }}
+            {% for error in form.username.errors %}
+                <div class="error">{{ error }}</div>
+            {% endfor %}
         </div>
 
         <!-- Email Field -->
-        <div class="form-group">
+        <div class="form-group {% if form.email.errors %}has-error{% endif %}">
             <label for="{{ form.email.id_for_label }}">Email</label>
             {{ form.email|add_class:"form-control" }}
+            {% for error in form.email.errors %}
+                <div class="error">{{ error }}</div>
+            {% endfor %}
         </div>
 
-        <!-- Role Field (Optional, only if needed) -->
-        <div class="form-group">
+        <!-- Password Fields -->
+        <div class="form-group {% if form.password1.errors %}has-error{% endif %}">
+            <label for="{{ form.password1.id_for_label }}">Password</label>
+            {{ form.password1|add_class:"form-control" }}
+            {% for error in form.password1.errors %}
+                <div class="error">{{ error }}</div>
+            {% endfor %}
+        </div>
+        <div class="form-group {% if form.password2.errors %}has-error{% endif %}">
+            <label for="{{ form.password2.id_for_label }}">Confirm Password</label>
+            {{ form.password2|add_class:"form-control" }}
+            {% for error in form.password2.errors %}
+                <div class="error">{{ error }}</div>
+            {% endfor %}
+        </div>
+
+        <!-- Role Selection -->
+        <div class="form-group {% if form.role.errors %}has-error{% endif %}">
             <label for="{{ form.role.id_for_label }}">Role</label>
             {{ form.role|add_class:"form-control" }}
+            {% for error in form.role.errors %}
+                <div class="error">{{ error }}</div>
+            {% endfor %}
         </div>
 
-        <!-- Error Handling for Each Field -->
-        {% for field in form %}
-            {% if field.errors %}
-                <div class="error-container">
-                    <ul class="error-list">
-                        {% for error in field.errors %}
-                            <li class="error">{{ error }}</li>
-                        {% endfor %}
-                    </ul>
-                </div>
-            {% endif %}
-        {% endfor %}
+        <!-- Teacher-Specific Fields -->
+        <div id="teacher-fields" class="form-group" style="display: none;">
+            <label for="{{ form.subject.id_for_label }}">Subject</label>
+            {{ form.subject|add_class:"form-control" }}
+            {% for error in form.subject.errors %}
+                <div class="error">{{ error }}</div>
+            {% endfor %}
+
+            <label for="{{ form.experience.id_for_label }}">Experience (Years)</label>
+            {{ form.experience|add_class:"form-control" }}
+            {% for error in form.experience.errors %}
+                <div class="error">{{ error }}</div>
+            {% endfor %}
+
+            <label for="{{ form.qualification.id_for_label }}">Qualification</label>
+            {{ form.qualification|add_class:"form-control" }}
+            {% for error in form.qualification.errors %}
+                <div class="error">{{ error }}</div>
+            {% endfor %}
+        </div>
+
+        <!-- Student-Specific Fields -->
+        <div id="student-fields" class="form-group" style="display: none;">
+            <label for="{{ form.grade.id_for_label }}">Grade</label>
+            {{ form.grade|add_class:"form-control" }}
+            {% for error in form.grade.errors %}
+                <div class="error">{{ error }}</div>
+            {% endfor %}
+
+            <label for="{{ form.parent_contact.id_for_label }}">Parent Contact</label>
+            {{ form.parent_contact|add_class:"form-control" }}
+            {% for error in form.parent_contact.errors %}
+                <div class="error">{{ error }}</div>
+            {% endfor %}
+        </div>
 
         <!-- Submit Button -->
         <button type="submit" class="btn btn-primary btn-block">Sign Up</button>
     </form>
 
-    <!-- Quick link to login -->
+    <!-- Login Link -->
     <p class="login-link">
         Already have an account? <a href="{% url 'login' %}">Log in here</a>.
     </p>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const roleField = document.getElementById('id_role');
+        const teacherFields = document.getElementById('teacher-fields');
+        const studentFields = document.getElementById('student-fields');
+
+        // Function to toggle fields based on the selected role
+        function toggleFields() {
+            if (roleField.value === 'teacher') {
+                teacherFields.style.display = 'block';
+                studentFields.style.display = 'none';
+            } else if (roleField.value === 'student') {
+                teacherFields.style.display = 'none';
+                studentFields.style.display = 'block';
+            } else {
+                teacherFields.style.display = 'none';
+                studentFields.style.display = 'none';
+            }
+        }
+
+        // Add event listener for role changes
+        roleField.addEventListener('change', toggleFields);
+
+        // Initialize fields on page load
+        toggleFields();
+    });
+</script>
 {% endblock %}
