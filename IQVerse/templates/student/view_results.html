@@ -21,9 +21,9 @@
         </div>
         <div class="card-body">
             <p><strong>Attempt Date:</strong> {{ attempt.started_at|date:"D, d M Y H:i" }}</p>
-            <p><strong>Total Marks Scored:</strong> {{ total_score }}</p>
-            <p><strong>Maximum Marks:</strong> {{ max_score }}</p>
-            <p><strong>Percentage:</strong> {{ score }}%</p>
+            <p><strong>Total Marks Scored:</strong> {{ score|floatformat:2 }} / {{ max_score|floatformat:2 }}</p>
+            <p><strong>Percentage:</strong> {{ percentage|floatformat:2 }}%</p>
+            <p><strong>Grade:</strong> {{ grade }}</p>
             <p><strong>Status:</strong>
                 {% if attempt.completed %}
                     <span class="badge bg-success"><i class="bi bi-check-circle"></i> Completed</span>
@@ -56,7 +56,7 @@
                         <span class="badge bg-danger"><i class="bi bi-x-circle"></i> Incorrect</span>
                         <p><strong>Marks:</strong> 0</p>
                     {% endif %}
-                    <p><strong>Feedback:</strong> {{ question.feedback|default:"No feedback provided." }}</p>
+                    <p><strong>Explanations:</strong> {{ question.feedback|default:"No feedback provided." }}</p>
                 </li>
                 {% endfor %}
             </ul>
@@ -64,20 +64,35 @@
     </div>
 
     <!-- Attempt Feedback -->
-    {% if attempt.feedback %}
-    <div class="card shadow-lg mb-4">
-        <div class="card-header bg-info text-white">
-            <h3 class="mb-0">
-                <i class="bi bi-chat-dots"></i> Overall Feedback
-            </h3>
-        </div>
-        <div class="card-body">
-            <p>{{ attempt.feedback }}</p>
-        </div>
-    </div>
-    {% endif %}
 
-    <!-- Retake Quiz Button -->
+  <!-- Attempt Feedback -->
+{% if feedback %}
+   <div class="card shadow-lg mb-4" id="overall-feedback-card">
+    <div class="card-header
+        {% if feedback == 'Excellent work! You have a great understanding of the material.' %}bg-success text-dark{% elif feedback == 'Good job! You performed well, but there\'s room for improvement.' %}bg-primary text-white{% elif feedback == 'You passed, but consider reviewing the material to strengthen your understanding.' %}bg-warning text-dark{% elif feedback == 'Below average. It\'s important to revisit the material and try again.' %}bg-danger text-white{% else %}bg-dark text-light{% endif %}">
+        <h3 class="mb-0">
+            <!-- Icons for each feedback level -->
+            {% if feedback == 'Excellent work! You have a great understanding of the material.' %}
+                <i class="bi bi-emoji-smile-fill"></i>
+            {% elif feedback == 'Good job! You performed well, but there\'s room for improvement.' %}
+                <i class="bi bi-emoji-neutral-fill"></i>
+            {% elif feedback == 'You passed, but consider reviewing the material to strengthen your understanding.' %}
+                <i class="bi bi-emoji-dizzy-fill"></i>
+            {% elif feedback == 'Below average. It\'s important to revisit the material and try again.' %}
+                <i class="bi bi-emoji-frown-fill"></i>
+            {% else %}
+                <i class="bi bi-emoji-heart-eyes-fill"></i>
+            {% endif %}
+            Overall Feedback
+        </h3>
+    </div>
+    <div class="card-body">
+        <p>{{ feedback }}</p>
+    </div>
+</div>
+{% endif %}
+
+    <!-- Retake Quiz and Navigation -->
     <div class="text-center mt-3">
         {% if not attempt.completed %}
             <a href="{% url 'resume_exam' attempt_id=attempt.id %}" class="btn btn-warning btn-lg rounded-pill">
@@ -90,7 +105,6 @@
         {% endif %}
     </div>
 
-    <!-- Back to Dashboard Button -->
     <div class="text-center mt-4">
         <a href="{% url 'student_dashboard' %}" class="btn btn-primary btn-lg rounded-pill">
             <i class="bi bi-arrow-left-circle"></i> Back to Dashboard
