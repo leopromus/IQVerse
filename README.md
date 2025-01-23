@@ -25,8 +25,8 @@ The **Interactive Quiz Platform** is a web application built with **Django** tha
 
 ```bash
 # Step 1: Clone the repository
-git clone https://github.com/yourusername/interactive-quiz-platform.git
-cd interactive-quiz-platform
+git clone https://github.com/leopromus/IQVerse.git
+cd IQVerse
 
 # Step 2: Set up a virtual environment
 python3 -m venv venv
