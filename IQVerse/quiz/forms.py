@@ -1,55 +1,80 @@
 from .models import User, TeacherApplication, Question, Course, Student, Settings, Teacher, Quiz
 from django.contrib.auth.forms import AuthenticationForm
-from django import forms
-from django.core.exceptions import ValidationError
-from django.contrib.auth.models import User
-
-from django.forms.widgets import HiddenInput
-# forms.py
-from django import forms
 from .models import StudentExam
 from django.contrib.auth import get_user_model
-
-
+from django.core.exceptions import ValidationError
+from django import forms
+from .models import User
 
 class UserForm(forms.ModelForm):
-    # Adding two password fields for confirmation
-    password1 = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'Password'}))
-    password2 = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'Confirm Password'}))
-
-    # Custom validator to ensure passwords match
-    def clean_password2(self):
-        password1 = self.cleaned_data.get("password1")
-        password2 = self.cleaned_data.get("password2")
-
-        if password1 != password2:
-            raise ValidationError("Passwords do not match.")
-        return password2
+    password1 = forms.CharField(
+        widget=forms.PasswordInput(attrs={'class': 'form-control'}),
+        label="Password"
+    )
+    password2 = forms.CharField(
+        widget=forms.PasswordInput(attrs={'class': 'form-control'}),
+        label="Confirm Password"
+    )
+    grade = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control'}),
+        label="Grade"
+    )
+    parent_contact = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control'}),
+        label="Parent Contact"
+    )
+    subject = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control'}),
+        label="Subject"
+    )
+    experience = forms.IntegerField(
+        required=False,
+        widget=forms.NumberInput(attrs={'class': 'form-control'}),
+        label="Experience (in years)"
+    )
+    qualification = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control'}),
+        label="Qualification"
+    )
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'role', 'password1', 'password2']
+        fields = [
+            'username', 'email', 'role', 'password1', 'password2',
+            'grade', 'parent_contact', 'subject', 'experience', 'qualification'
+        ]
 
-    # Add role choices manually if you have specific roles (you can modify this based on your project)
-    ROLE_CHOICES = [
-        ('admin', 'Admin'),
-        ('teacher', 'Teacher'),
-        ('student', 'Student'),
-    ]
+    def clean(self):
+        cleaned_data = super().clean()
+        password1 = cleaned_data.get('password1')
+        password2 = cleaned_data.get('password2')
+        role = cleaned_data.get('role')
 
-    role = forms.ChoiceField(choices=ROLE_CHOICES, required=True)
+        # Password validation
+        if password1 != password2:
+            self.add_error('password2', 'Passwords do not match.')
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        for field_name, field in self.fields.items():
-            field.widget.attrs.update({'class': 'form-control'})
-            # Adding placeholders for other fields
-            if field_name == 'username':
-                field.widget.attrs.update({'placeholder': 'Enter your username'})
-            elif field_name == 'email':
-                field.widget.attrs.update({'placeholder': 'Enter your email'})
-            elif field_name == 'role':
-                field.widget.attrs.update({'placeholder': 'Select your role'})
+        # Role-specific validation
+        if role == 'student':
+            if not cleaned_data.get('grade'):
+                self.add_error('grade', 'Grade is required for students.')
+            if not cleaned_data.get('parent_contact'):
+                self.add_error('parent_contact', 'Parent Contact is required for students.')
+
+        elif role == 'teacher':
+            if not cleaned_data.get('subject'):
+                self.add_error('subject', 'Subject is required for teachers.')
+            if not cleaned_data.get('experience'):
+                self.add_error('experience', 'Experience is required for teachers.')
+            if not cleaned_data.get('qualification'):
+                self.add_error('qualification', 'Qualification is required for teachers.')
+
+        return cleaned_data
+
 
 class CustomAuthenticationForm(AuthenticationForm):
     username = forms.CharField(
@@ -62,8 +87,26 @@ class CustomAuthenticationForm(AuthenticationForm):
         widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Enter Password'}),
     )
 
+    def clean(self):
+        # Run the base class validation first
+        cleaned_data = super().clean()
+
+        # Get the user instance after authentication
+        username = cleaned_data.get('username')
+        user = self.get_user()
+
+        # Check if the user exists and is authenticated
+        if user:
+            # Check if the user is a teacher and is not approved
+            if user.groups.filter(name='Teacher').exists() and not user.profile.is_approved:
+                raise ValidationError(
+                    "Your account has not been approved by an admin. Please wait for approval."
+                )
+
+        return cleaned_data
+
     class Meta:
-        model = AuthenticationForm
+        model = User
         fields = ['username', 'password']
 
 
