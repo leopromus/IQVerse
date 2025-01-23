@@ -287,6 +287,60 @@ for q in biology_questions:
 
 
 
+from quiz.models import Testimonial,User
+
+# Fetch the existing users (teachers, students, admin)
+teacher_gogo = User.objects.get(username='gogo250')
+teacher_evariste = User.objects.get(username='evariste')
+teacher_karangwa = User.objects.get(username='karangwa')
+student_elsa = User.objects.get(username='elsa')
+student_rubasha = User.objects.get(username='rubasha')
+student_mushi = User.objects.get(username='mushi')
+admin_mukandoli = User.objects.get(username='mukandoli')
+
+# Create testimonials
+testimonial_1 = Testimonial.objects.create(
+    message="The Online Exam System has made teaching more efficient and engaging!",
+    user=teacher_gogo,
+    role='teacher'
+)
+
+testimonial_2 = Testimonial.objects.create(
+    message="As a student, I can track my performance easily. The system is amazing!",
+    user=student_elsa,
+    role='student'
+)
+
+testimonial_3 = Testimonial.objects.create(
+    message="The system is perfect for managing exams and provides great insights into performance.",
+    user=teacher_evariste,
+    role='teacher'
+)
+
+testimonial_4 = Testimonial.objects.create(
+    message="I love the user-friendly interface, and it's so simple to manage my studies!",
+    user=student_rubasha,
+    role='student'
+)
+
+testimonial_5 = Testimonial.objects.create(
+    message="Managing the exam system as an admin has never been easier. Great functionality!",
+    user=admin_mukandoli,
+    role='admin'
+)
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
