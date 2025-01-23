@@ -5,6 +5,7 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django import forms
 from .models import User
+from django.forms.widgets import HiddenInput
 
 class UserForm(forms.ModelForm):
     password1 = forms.CharField(
@@ -116,6 +117,7 @@ class TeacherApplicationForm(forms.ModelForm):
         fields = ['full_name', 'email', 'phone_number', 'resume', 'cover_letter']
 
 
+
 class CourseForm(forms.ModelForm):
     class Meta:
         model = Course
@@ -131,7 +133,7 @@ class CourseForm(forms.ModelForm):
         elif user and user.role == 'teacher':
             # Teacher's own teacher is pre-selected and hidden
             self.fields['teacher'].queryset = Teacher.objects.filter(user=user)
-            self.fields['teacher'].widget = forms.HiddenInput()  # Hide the teacher field for teachers
+            self.fields['teacher'].widget = HiddenInput()  # Hide the teacher field for teachers
 
 
 class QuestionForm(forms.ModelForm):
@@ -158,8 +160,8 @@ class QuestionForm(forms.ModelForm):
         question = super().save(commit=False)
 
         # If exam (quiz) is provided, associate the question with the exam
-        if 'exam' in self.data:
-            exam = self.data.get('exam')
+        exam = self.data.get('exam')
+        if exam:
             question.quiz = Quiz.objects.get(id=exam)
 
         if commit:
