@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 
 from . import forms
 from .models import User, Teacher, Student, Course, Question, Marks, TeacherApplication, Settings, Quiz, \
-    UserQuizAttempt, Choice, UserAnswer, Leaderboard, QuizAttemptHistory
+    UserQuizAttempt, Choice, UserAnswer, Leaderboard, QuizAttemptHistory, Testimonial
 from django.contrib import messages
 from django.http import HttpResponseForbidden
 from .forms import TeacherApplicationForm, QuestionForm, CourseForm, UserForm, StudentForm, CustomAuthenticationForm, \
@@ -37,11 +37,7 @@ from django.contrib import messages
 from django.utils.timezone import now
 from .models import UserQuizAttempt, UserAnswer, QuizAttemptHistory, Leaderboard
 
-
-
-
-
-
+from django.core.exceptions import ObjectDoesNotExist
 
 # Helpers
 def is_admin(user):
@@ -63,7 +59,10 @@ def is_student(user):
 
 
 def home(request):
-    context = {}
+    testimonials = Testimonial.objects.all()
+    context = {
+    'testimonials': testimonials
+    }
     if request.user.is_authenticated and request.user.role == 'admin':
         context['total_users'] = User.objects.count()
         context['total_teachers'] = User.objects.filter(role='teacher').count()
@@ -72,70 +71,103 @@ def home(request):
     return render(request, 'home.html', context)
 
 
+
 def signup(request):
     if request.method == 'POST':
         form = UserForm(request.POST)
         if form.is_valid():
+            # Save the User model instance
             user = form.save(commit=False)
-            # Set the password after the user object is created
             user.set_password(form.cleaned_data['password1'])
             user.save()
 
-            # Create profile depending on the user's role (you can extend this for admin/teacher)
+            # Handle Student signup
             if user.role == 'student':
-                Student.objects.create(user=user)
+                Student.objects.create(
+                    user=user,
+                    grade=form.cleaned_data['grade'],
+                    parent_contact=form.cleaned_data['parent_contact']
+                )
+                messages.success(request, 'Account created successfully. Welcome to the student dashboard!')
+                login(request, user)  # Log the student in automatically
+                return redirect('student_dashboard')
+
+            # Handle Teacher signup
             elif user.role == 'teacher':
-                # Logic to create Teacher profile (if applicable)
-                pass
-            elif user.role == 'admin':
-                # Logic for admin role (if applicable)
-                pass
+                Teacher.objects.create(
+                    user=user,
+                    subject=form.cleaned_data['subject'],
+                    experience=form.cleaned_data['experience'],
+                    qualification=form.cleaned_data['qualification'],
+                    is_approved=False  # Pending approval by admin
+                )
+                messages.info(request, 'Your account has been created and is pending admin approval.')
+                return redirect('login')  # Redirect to login page with info message
 
-            # Success message
-            messages.success(request, 'Account created successfully. Please log in.')
-            return redirect('login')  # Redirect to login page after successful registration
         else:
-            # If form is not valid, display errors
             messages.error(request, 'There were errors in your form. Please try again.')
-
     else:
         form = UserForm()
 
     return render(request, 'registration/signup.html', {'form': form})
 
+
 def login_view(request):
-    # If the method is POST, handle form submission
     if request.method == 'POST':
         form = CustomAuthenticationForm(request, data=request.POST)
-
-        # Check if the form is valid
         if form.is_valid():
             username = form.cleaned_data['username']
             password = form.cleaned_data['password']
-
-            # Authenticate user
             user = authenticate(request, username=username, password=password)
 
             if user is not None:
-                login(request, user)
+                try:
+                    # Check if the user is a teacher and has a teacher profile
+                    if user.role == 'teacher':
+                        if not hasattr(user, 'teacher'):
+                            # Redirect to signup if no teacher profile exists
+                            messages.error(
+                                request,
+                                "You must have a valid teacher profile to log in. Please sign up as a teacher."
+                            )
+                            return redirect('signup')
 
-                # Redirect based on the user's role
-                if user.groups.filter(name='Admin').exists():
-                    return redirect('admin_dashboard')
-                elif user.groups.filter(name='Teacher').exists():
-                    return redirect('teacher_dashboard')
-                elif user.groups.filter(name='Student').exists():
-                    return redirect('student_dashboard')
+                        # Check if the teacher's account is approved
+                        if not user.teacher.is_approved:
+                            messages.error(
+                                request,
+                                "Your teacher account is not yet approved by the admin. Please wait for approval."
+                            )
+                            return redirect('login')
+
+                    # Log the user in
+                    login(request, user)
+
+                    # Redirect based on user role
+                    if user.role == 'admin':
+                        return redirect('admin_dashboard')
+                    elif user.role == 'teacher':
+                        return redirect('teacher_dashboard')
+                    elif user.role == 'student':
+                        return redirect('student_dashboard')
+
+                except ObjectDoesNotExist:
+                    # Handle cases where the related object (e.g., Teacher) does not exist
+                    messages.error(
+                        request,
+                        "An error occurred while accessing your account. Please contact support."
+                    )
+                    return redirect('login')
+
             else:
                 messages.error(request, 'Invalid username or password.')
         else:
             messages.error(request, 'Form is invalid. Please check your input.')
     else:
-        # If GET, create an empty form
         form = CustomAuthenticationForm()
 
-    # Render the login page with the form
     return render(request, 'registration/login.html', {'form': form})
+
 
 
 def logout_view(request):
@@ -1391,22 +1423,22 @@ def assign_exam(request):
 
 
 # Teacher only view decorator
-def teacher_required(view_func):
+def teacher_or_admin_required(view_func):
     def _wrapped_view(request, *args, **kwargs):
-        if request.user.role != 'teacher':
-            return redirect('home')  # Redirect to home if not a teacher
+        if request.user.role not in ['teacher', 'admin']:
+            return redirect('home')  # Redirect to home if not a teacher or admin
         return view_func(request, *args, **kwargs)
     return _wrapped_view
 
 # Manage Questions
 @login_required
-@teacher_required
+@teacher_or_admin_required
 def manage_questions(request):
     questions = Question.objects.all()
     return render(request, 'teacher/manage_questions.html', {'questions': questions})
 
 @login_required
-@teacher_required
+@teacher_or_admin_required
 def add_question(request):
     if request.method == 'POST':
         form = QuestionForm(request.POST)
@@ -1418,7 +1450,7 @@ def add_question(request):
     return render(request, 'teacher/add_question.html', {'form': form})
 
 @login_required
-@teacher_required
+@teacher_or_admin_required
 def update_question(request, question_id):
     question = get_object_or_404(Question, id=question_id)
     if request.method == 'POST':
@@ -1431,7 +1463,7 @@ def update_question(request, question_id):
     return render(request, 'teacher/update_question.html', {'form': form})
 
 @login_required
-@teacher_required
+@teacher_or_admin_required
 def delete_question(request, question_id):
     question = get_object_or_404(Question, id=question_id)
     question.delete()
@@ -1439,13 +1471,13 @@ def delete_question(request, question_id):
 
 # Manage Quizzes (Exams)
 @login_required
-@teacher_required
+@teacher_or_admin_required
 def manage_quizzes(request):
     quizzes = Quiz.objects.all()
     return render(request, 'teacher/manage_quizzes.html', {'quizzes': quizzes})
 
 @login_required
-@teacher_required
+@teacher_or_admin_required
 def add_quiz(request):
     if request.method == 'POST':
         form = ExamForm(request.POST)
@@ -1457,7 +1489,7 @@ def add_quiz(request):
     return render(request, 'teacher/add_quiz.html', {'form': form})
 
 @login_required
-@teacher_required
+@teacher_or_admin_required
 def update_quiz(request, quiz_id):
     quiz = get_object_or_404(Quiz, id=quiz_id)
     if request.method == 'POST':
@@ -1470,7 +1502,7 @@ def update_quiz(request, quiz_id):
     return render(request, 'teacher/update_quiz.html', {'form': form})
 
 @login_required
-@teacher_required
+@teacher_or_admin_required
 def delete_quiz(request, quiz_id):
     quiz = get_object_or_404(Quiz, id=quiz_id)
     quiz.delete()
@@ -1512,3 +1544,10 @@ def reset_quiz(request, quiz_id):
 
     # Redirect to the quiz transcript page after resetting
     return redirect('quiz_transcript')
+
+
+def testimonials_view(request):
+    # Fetch all testimonials from the database
+    testimonials = Testimonial.objects.all()
+
+    return render(request, 'home.html', {'testimonials': testimonials})
