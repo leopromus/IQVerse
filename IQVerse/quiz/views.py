@@ -220,7 +220,8 @@ def approve_teacher(request, teacher_id):
 @user_passes_test(is_teacher_or_admin)
 def teacher_dashboard(request):
     # Fetch quizzes created by the current teacher
-    exams = Quiz.objects.all()
+    # Assuming the teacher field in Quiz is now properly set and non-nullable
+    exams = Quiz.objects.filter(title=request.user.teacher)  # Filter quizzes by the current teacher
 
     # Fetch total questions related to the quizzes created by the teacher
     questions_count = Question.objects.filter(quiz__in=exams).count()
@@ -228,8 +229,8 @@ def teacher_dashboard(request):
     # Fetch total students if applicable
     students_count = Student.objects.count() if hasattr(Student, 'id') else 0
 
-    # Fetch total courses (adjust field name or logic based on your Course model)
-    courses_count = Course.objects.filter(updated_at=request.user).count() if hasattr(Course, 'created_by') else 0
+    # Fetch total courses taught by the current teacher
+    courses_count = Course.objects.filter(teacher=request.user.teacher).count()  # Filter courses by the teacher
 
     context = {
         'students': students_count,
@@ -238,7 +239,6 @@ def teacher_dashboard(request):
         'exams': exams,
     }
     return render(request, 'teacher/dashboard.html', context)
-
 
 @login_required
 @user_passes_test(is_teacher_or_admin)
@@ -989,6 +989,20 @@ def exam_results(request, attempt_id):
     })
 
 
+def calculate_feedback(percentage):
+    """
+    Returns feedback based on the user's percentage.
+    """
+    if percentage >= 90:
+        return "Excellent work! You have a great understanding of the material."
+    elif 75 <= percentage < 90:
+        return "Good job! You performed well, but there's room for improvement."
+    elif 50 <= percentage < 75:
+        return "You passed, but consider reviewing the material to strengthen your understanding."
+    elif 30 <= percentage < 50:
+        return "Below average. It's important to revisit the material and try again."
+    else:
+        return "Poor performance. Please go through the material thoroughly and seek help if needed."
 
 @login_required
 @user_passes_test(is_teacher_admin_or_student)
@@ -1013,7 +1027,7 @@ def view_results(request, attempt_id):
         attempt.recorded = True
         attempt.save()
 
-        # Log the attempt in a separate history model (optional)
+        # Log the attempt in a separate history model
         QuizAttemptHistory.objects.create(
             user=request.user,
             quiz=quiz,
@@ -1023,6 +1037,9 @@ def view_results(request, attempt_id):
 
     # Fetch the user's answers for this attempt with question details
     user_answers = UserAnswer.objects.filter(attempt=attempt).select_related('question')
+
+    # Calculate the total marks for the quiz
+    total_marks = sum(user_answer.question.marks for user_answer in user_answers)
 
     # Prepare a detailed breakdown of each question
     questions = []
@@ -1035,6 +1052,11 @@ def view_results(request, attempt_id):
             'marks': answer.question.marks,
             'feedback': answer.question.explanation,
         })
+
+    # Calculate the percentage, grade, and feedback
+    percentage = (score / total_marks) * 100 if total_marks > 0 else 0
+    grade = calculate_grade(score, total_marks)
+    feedback = calculate_feedback(percentage)
 
     # Fetch all attempts for this quiz
     attempt_history = UserQuizAttempt.objects.filter(user=request.user, quiz=quiz).order_by('-score')
@@ -1050,12 +1072,15 @@ def view_results(request, attempt_id):
         'attempt': attempt,           # Current attempt object
         'quiz': quiz,                 # Quiz object
         'score': score,               # Final score
+        'max_score': total_marks,     # Total marks for the quiz
+        'percentage': percentage,     # Percentage score
+        'grade': grade,               # Calculated grade
+        'feedback': feedback,         # Feedback based on performance
         'questions': questions,       # Detailed question data
         'attempt_history': attempt_history,  # User's attempt history
         'total_attempts': total_attempts,    # Total number of attempts
         'leaderboard': leaderboard,   # Leaderboard data (optional)
     })
-
 
 
 
@@ -1098,17 +1123,16 @@ def student_exam_view(request):
     return render(request, 'student_exam.html', {'quizzes': quizzes})
 
 
-
 @login_required
 @user_passes_test(is_teacher_admin_or_student)
 def take_exam_view(request, pk):
     # Fetch the quiz
     quiz = get_object_or_404(Quiz, id=pk)
 
-    # Check if the user is allowed to take the quiz (optional: add your custom logic here)
+    # Check if the quiz has no questions, and redirect if true
     if quiz.questions.count() == 0:  # Assuming a related name `questions` exists
         messages.error(request, "This quiz has no questions available.")
-        return redirect('student-exam')
+        return redirect('student-exam')  # Redirect to the student exam page
 
     # Initialize or reset the quiz attempt for the user
     user = request.user
@@ -1422,13 +1446,22 @@ def assign_exam(request):
     return render(request, 'assign_exam.html', {'form': form})
 
 
-# Teacher only view decorator
 def teacher_or_admin_required(view_func):
     def _wrapped_view(request, *args, **kwargs):
+        # Ensure the user is authenticated
+        if not request.user.is_authenticated:
+            messages.error(request, "You must be logged in to access this page.")
+            return redirect('login')  # Redirect to login page if the user is not authenticated
+
+        # Check if the user is a teacher or admin
         if request.user.role not in ['teacher', 'admin']:
+            messages.error(request, "You do not have permission to view this page.")
             return redirect('home')  # Redirect to home if not a teacher or admin
+
         return view_func(request, *args, **kwargs)
+
     return _wrapped_view
+
 
 # Manage Questions
 @login_required
@@ -1437,8 +1470,9 @@ def manage_questions(request):
     questions = Question.objects.all()
     return render(request, 'teacher/manage_questions.html', {'questions': questions})
 
+
 @login_required
-@teacher_or_admin_required
+#@teacher_or_admin_required
 def add_question(request):
     if request.method == 'POST':
         form = QuestionForm(request.POST)
@@ -1447,7 +1481,8 @@ def add_question(request):
             return redirect('manage_questions')
     else:
         form = QuestionForm()
-    return render(request, 'teacher/add_question.html', {'form': form})
+
+    return render(request, 'teacher/add_question.html', {'form': form, 'exam': request.GET.get('exam', None)})
 
 @login_required
 @teacher_or_admin_required
