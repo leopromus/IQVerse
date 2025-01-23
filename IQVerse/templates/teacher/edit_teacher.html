@@ -1,20 +1,60 @@
+{% extends 'base.html' %}
+{% block content %}
+<!-- Bootstrap Icons -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
 
-<h1>Edit Teacher: {{ teacher.user.username }}</h1>
-<p><strong>Subject:</strong> {{ teacher.subject }}</p>
-<p><strong>Experience:</strong> {{ teacher.experience }} years</p>
-<p><strong>Qualification:</strong> {{ teacher.qualification }}</p>
+<div class="container mt-5 p-4 rounded shadow bg-light d-flex flex-column align-items-center">
+    <!-- Page Header -->
+    <div class="text-center mb-4">
+        <h2 class="text-primary fw-bold">
+            <i class="bi bi-pencil-square me-2"></i> Edit Teacher: {{ teacher.user.username }}
+        </h2>
+    </div>
 
-<form method="POST" enctype="multipart/form-data">
-    {% csrf_token %}
-    <!-- form fields for editing teacher data -->
-    <div class="form-group">
-        <label for="subject">Subject:</label>
-        <input type="text" name="subject" value="{{ teacher.subject }}" class="form-control" required>
+    <!-- Teacher Details -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <p><strong><i class="bi bi-book me-2"></i>Subject:</strong> {{ teacher.subject }}</p>
+            <p><strong><i class="bi bi-briefcase me-2"></i>Experience:</strong> {{ teacher.experience }} years</p>
+            <p><strong><i class="bi bi-mortarboard me-2"></i>Qualification:</strong> {{ teacher.qualification }}</p>
+        </div>
     </div>
-    <div class="form-group">
-        <label for="experience">Experience:</label>
-        <input type="number" name="experience" value="{{ teacher.experience }}" class="form-control" required>
-    </div>
-    <!-- Add any other form fields you need for teacher editing -->
-    <button type="submit" class="btn btn-primary">Save Changes</button>
-</form>
+
+    <!-- Edit Form -->
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="subject" class="form-label fw-bold">Subject:</label>
+            <input
+                type="text"
+                name="subject"
+                id="subject"
+                value="{{ teacher.subject }}"
+                class="form-control"
+                placeholder="Enter subject"
+                required>
+        </div>
+
+        <div class="mb-3">
+            <label for="experience" class="form-label fw-bold">Experience (in years):</label>
+            <input
+                type="number"
+                name="experience"
+                id="experience"
+                value="{{ teacher.experience }}"
+                class="form-control"
+                placeholder="Enter experience"
+                required>
+        </div>
+
+        <!-- Add additional form fields here if needed -->
+
+        <!-- Submit Button -->
+        <div class="text-center">
+            <button type="submit" class="btn btn-success d-inline-flex align-items-center">
+                <i class="bi bi-check-circle me-2"></i> Save Changes
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
